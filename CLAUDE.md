@@ -28,6 +28,16 @@ The full approved plan is in `docs/architecture-plan.md`. Read it before startin
 - Regenerate `src/app/core/supabase/database.types.ts` after every migration.
 - Only the publishable key goes in frontend env files. Never put the service-role key there.
 
+## Patterns established in M3 (reuse them)
+- List pages: query params -> `input({transform})` -> `query` computed -> `resource()` -> `linkedSignal` keeps previous page while loading. Writes go through `injectQueryParams()`.
+- Services: `features/<x>/data/<x>.service.ts`, throw raw Supabase errors, accept `AbortSignal`. Pages call `describeError()`.
+- Deletes use `.select('id')` and treat 0 rows as a 42501 (RLS hides rows silently).
+- Tables: `nx-data-table` + `<ng-template nxCell="col" let-row>`. The primary cell holds a real link (keyboard), and the row click is a mouse convenience.
+- Forms: typed NonNullableFormBuilder with nested groups, `nx-form-field` + `nxControl`, and `afterNextRender` to focus the first invalid field.
+- Detail pages publish breadcrumb names via `BreadcrumbService.setLabel(url, name)` with route data `breadcrumb: ':record'`.
+- Workspace-style pages: `@Service({autoProvided:false})` store in route `providers`, with the shell calling `store.connect(this.id)`.
+- UI verification: the sandbox can't reach Supabase. Answer `/rest/v1/*` in Playwright with synthetic fixtures (pattern in M3 history) and say so.
+
 ## Skills to use
 - angular-new-app (init and `ng generate`) and angular-developer (standards, `ng build` after every change).
 - ui-ux-pro-max (design QA, `design-system/nexus/MASTER.md`), design-system (tokens, `validate-tokens.cjs`), brand (voice and microcopy).
@@ -43,7 +53,7 @@ The full approved plan is in `docs/architecture-plan.md`. Read it before startin
 - [x] M1 Planning (approved)
 - [x] M2a Foundation (shell, routing, tokens, shared UI v1, auth + guards, docs)
 - [x] M2b Database (6 migrations, RLS 25/25 tests, deterministic seed, generated types)
-- [ ] M3 Customers and Sites (no global search)
+- [x] M3 Customers and Sites (data table, forms, site workspace with route-scoped store)
 - [ ] M4 Assets: equipment + devices + telemetry chart / thermostat card (no simulator cron)
 - [ ] M5 Operations: work orders (full CRUD) + incidents (list, detail, timeline, comments, status)
 - [ ] M6 Dashboard (no separate analytics page)

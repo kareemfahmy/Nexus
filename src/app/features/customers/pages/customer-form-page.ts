@@ -1,5 +1,5 @@
 import { TitleCasePipe } from '@angular/common';
-import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { afterNextRender, Component, inject, Injector, input, OnInit, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { describeError } from '../../../core/data/app-error';
@@ -43,6 +43,7 @@ export default class CustomerFormPage implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly crumbs = inject(BreadcrumbService);
   private readonly fb = inject(NonNullableFormBuilder);
+  private readonly injector = inject(Injector);
 
   protected readonly statuses: CustomerStatus[] = ['active', 'onboarding', 'inactive'];
   protected readonly terms = ['Net 15', 'Net 30', 'Net 45', 'Net 60'];
@@ -146,8 +147,10 @@ export default class CustomerFormPage implements OnInit {
   }
 
   private focusFirstInvalid(): void {
-    queueMicrotask(() =>
-      document.querySelector<HTMLElement>('form [aria-invalid="true"]')?.focus(),
+    // Wait until Angular has rendered aria-invalid on the controls, then focus the first one.
+    afterNextRender(
+      () => document.querySelector<HTMLElement>('form [aria-invalid="true"]')?.focus(),
+      { injector: this.injector },
     );
   }
 }

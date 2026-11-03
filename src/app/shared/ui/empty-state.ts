@@ -10,7 +10,11 @@ import { Icon, IconName } from './icon';
   imports: [Icon],
   template: `
     <div class="icon-wrap"><nx-icon [name]="icon()" [size]="20" /></div>
-    <h2 class="heading">{{ heading() }}</h2>
+    @if (level() === 1) {
+      <h1 class="heading">{{ heading() }}</h1>
+    } @else {
+      <h2 class="heading">{{ heading() }}</h2>
+    }
     @if (message()) {
       <p class="message">{{ message() }}</p>
     }
@@ -56,4 +60,6 @@ export class EmptyState {
   readonly icon = input<IconName>('info');
   readonly heading = input.required<string>();
   readonly message = input('');
+  /** Use 1 when the empty state IS the page (not found, forbidden), so the page keeps an h1. */
+  readonly level = input<1 | 2>(2);
 }

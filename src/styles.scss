@@ -16,6 +16,11 @@ body {
   height: 100%;
 }
 
+// Keep focused/scrolled-to elements clear of the sticky top bar (WCAG 2.4.11 focus not obscured)
+html {
+  scroll-padding-top: calc(var(--topbar-height) + var(--space-4));
+}
+
 body {
   font-family: var(--font-sans);
   font-size: var(--text-base);

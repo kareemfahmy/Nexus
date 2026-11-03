@@ -1,5 +1,14 @@
 import { TitleCasePipe } from '@angular/common';
-import { Component, inject, input, OnInit, resource, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  inject,
+  Injector,
+  input,
+  OnInit,
+  resource,
+  signal,
+} from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { describeError } from '../../../core/data/app-error';
@@ -47,6 +56,7 @@ export default class SiteFormPage implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly crumbs = inject(BreadcrumbService);
   private readonly fb = inject(NonNullableFormBuilder);
+  private readonly injector = inject(Injector);
 
   protected readonly statuses: SiteStatus[] = ['onboarding', 'active', 'inactive'];
   protected readonly timezones = TIMEZONES;
@@ -120,8 +130,10 @@ export default class SiteFormPage implements OnInit {
   protected async submit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      queueMicrotask(() =>
-        document.querySelector<HTMLElement>('form [aria-invalid="true"]')?.focus(),
+      // Wait until Angular has rendered aria-invalid on the controls, then focus the first one.
+      afterNextRender(
+        () => document.querySelector<HTMLElement>('form [aria-invalid="true"]')?.focus(),
+        { injector: this.injector },
       );
       return;
     }

@@ -8,6 +8,7 @@ import { EmptyState } from '../../shared/ui/empty-state';
   imports: [EmptyState, Button, RouterLink],
   template: `
     <nx-empty-state
+      [level]="1"
       icon="search"
       heading="Page not found"
       message="The link may be outdated or the record may have been removed."

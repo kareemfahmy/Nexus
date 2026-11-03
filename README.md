@@ -4,7 +4,7 @@
 
 > Portfolio project built with **Angular 22 + Supabase (PostgreSQL)**. All data is fictional and all telemetry is simulated.
 
-**Status:** Milestone 2b (database) complete. See [roadmap](#roadmap).
+**Status:** Milestone 3 (customers and sites) complete. See [roadmap](#roadmap).
 
 ---
 
@@ -108,13 +108,10 @@ More detail is in [docs/architecture.md](docs/architecture.md).
 | 1 | Product architecture and planning | ✅ |
 | 2a | Foundation: shell, routing, design system, auth | ✅ |
 | 2b | Database: schema, RLS, seed data, generated types | ✅ |
-| 3 | Customers and Sites | |
-| 4 | Equipment | |
-| 5 | IoT Devices | |
-| 6 | Telemetry and monitoring | |
-| 7 | Work orders | |
-| 8 | Incidents | |
-| 9 | Dashboard and Analytics | |
-| 10 | Refinement, accessibility, e2e, deployment | |
+| 3 | Customers and Sites | ✅ |
+| 4 | Assets: equipment, devices, telemetry | |
+| 5 | Operations: work orders and incidents | |
+| 6 | Dashboard | |
+| 7 | Deploy and polish | |
 
 The full plan is in [docs/architecture-plan.md](docs/architecture-plan.md).

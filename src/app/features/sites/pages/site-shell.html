@@ -47,7 +47,10 @@
           <ul class="chips" role="list" aria-label="Site health">
             <li>
               @if (h.devices_offline) {
-                <nx-badge tone="danger" dot>{{ h.devices_offline }} devices offline</nx-badge>
+                <nx-badge tone="danger" dot
+                  >{{ h.devices_offline }}
+                  {{ h.devices_offline === 1 ? 'device' : 'devices' }} offline</nx-badge
+                >
               } @else {
                 <nx-badge tone="success" dot>All devices reporting</nx-badge>
               }
@@ -55,14 +58,16 @@
             @if (h.open_incidents) {
               <li>
                 <nx-badge [tone]="h.critical_incidents ? 'danger' : 'warning'" dot>
-                  {{ h.open_incidents }} open incidents
+                  {{ h.open_incidents }} open
+                  {{ h.open_incidents === 1 ? 'incident' : 'incidents' }}
                 </nx-badge>
               </li>
             }
             @if (h.overdue_work_orders) {
               <li>
                 <nx-badge tone="warning" dot
-                  >{{ h.overdue_work_orders }} overdue work orders</nx-badge
+                  >{{ h.overdue_work_orders }} overdue
+                  {{ h.overdue_work_orders === 1 ? 'work order' : 'work orders' }}</nx-badge
                 >
               </li>
             }
