@@ -20,7 +20,8 @@ The full approved plan is in `docs/architecture-plan.md`. Read it before startin
 ## Supabase
 - The cloud sandbox network policy blocks *.supabase.co, so browser sign-in can't be tested from the container (MCP tools still work). The user tests auth in their own browser.
 - Hosted project "Nexus": ref `csblzgxsskyfpgsevlgd`, eu-central-1, Postgres 17.
-- Migrations in `supabase/migrations/` are the source of truth. They're applied via the Supabase MCP `apply_migration` (6 applied: 0001-0006).
+- Migrations in `supabase/migrations/` are the source of truth. They're applied via the Supabase MCP `apply_migration` (7 applied: 0001-0007).
+- `database.types.ts` was hand-patched for 0007 (telemetry_series + optional author_id) to match generator output. Regenerate fully when convenient.
 - Dry-run new SQL on a local Postgres 16 first (`/usr/lib/postgresql/16/bin`, run as the `postgres` user) with an `auth` schema stub, then apply to the hosted project.
 - After schema changes, run `supabase/tests/rls_and_rules.test.sql` (expected: `RLS_TESTS_PASSED`) and `get_advisors`. The accepted findings are listed in docs/rls.md.
 - People model: assignees and authors reference `team_members` (not auth users). Real users get a linked team_members row on signup. Roles live in `profiles.role` and are promoted only via SQL.
@@ -36,6 +37,9 @@ The full approved plan is in `docs/architecture-plan.md`. Read it before startin
 - Forms: typed NonNullableFormBuilder with nested groups, `nx-form-field` + `nxControl`, and `afterNextRender` to focus the first invalid field.
 - Detail pages publish breadcrumb names via `BreadcrumbService.setLabel(url, name)` with route data `breadcrumb: ':record'`.
 - Workspace-style pages: `@Service({autoProvided:false})` store in route `providers`, with the shell calling `store.connect(this.id)`.
+- Reusable-in-site pages: inject `SiteWorkspaceStore` with `{ optional: true }` to scope a global page (equipment overview, device list) to the current site.
+- Charts: `shared/ui/chart.ts` (ECharts lazy-loaded, afterNextRender + effect + ResizeObserver). Read colours from CSS tokens at runtime, and always pair with a text summary plus a table.
+- Cross-feature domain code (telemetry) lives in a route-less `features/telemetry/` folder.
 - UI verification: the sandbox can't reach Supabase. Answer `/rest/v1/*` in Playwright with synthetic fixtures (pattern in M3 history) and say so.
 
 ## Skills to use
@@ -54,7 +58,7 @@ The full approved plan is in `docs/architecture-plan.md`. Read it before startin
 - [x] M2a Foundation (shell, routing, tokens, shared UI v1, auth + guards, docs)
 - [x] M2b Database (6 migrations, RLS 25/25 tests, deterministic seed, generated types)
 - [x] M3 Customers and Sites (data table, forms, site workspace with route-scoped store)
-- [ ] M4 Assets: equipment + devices + telemetry chart / thermostat card (no simulator cron)
+- [x] M4 Assets: grouped equipment overview, equipment detail + activity timeline + notes, device inventory + detail, telemetry chart (telemetry_series RPC) + thermostat card
 - [ ] M5 Operations: work orders (full CRUD) + incidents (list, detail, timeline, comments, status)
 - [ ] M6 Dashboard (no separate analytics page)
 - [ ] M7 Deploy + README (live URL is the priority)

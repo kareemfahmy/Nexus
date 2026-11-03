@@ -1,0 +1,40 @@
+.groups {
+  display: grid;
+  gap: var(--space-4);
+
+  &[aria-busy='true'] {
+    opacity: 0.6;
+  }
+}
+
+.group-head {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-base);
+
+  button {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: var(--space-1) 0;
+    border: 0;
+    background: none;
+    color: var(--color-text);
+    font: inherit;
+    text-align: start;
+  }
+}
+
+.label {
+  font-weight: var(--weight-semibold);
+}
+
+.count {
+  color: var(--color-text-muted);
+  font-weight: var(--weight-regular);
+}
+
+.push {
+  margin-left: auto;
+}

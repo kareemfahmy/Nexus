@@ -1,0 +1,92 @@
+<nx-page-header
+  [title]="isEdit ? 'Edit equipment' : 'New equipment'"
+  [subtitle]="
+    isEdit ? 'Every change is recorded in the activity log.' : 'Fields marked * are required.'
+  "
+/>
+
+@if (loading()) {
+  <nx-skeleton height="360px" />
+} @else {
+  <form class="nx-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage()) {
+      <div class="nx-alert" role="alert">
+        <nx-icon name="alert" /> <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <fieldset class="nx-fieldset">
+      <legend>Equipment</legend>
+      <nx-form-field class="span-2" label="Site" required>
+        <select nxControl formControlName="site_id">
+          <option value="" disabled>Select a site</option>
+          @if (siteOptions.hasValue()) {
+            @for (s of siteOptions.value(); track s.id) {
+              <option [value]="s.id">{{ s.code }} · {{ s.name }}</option>
+            }
+          }
+        </select>
+      </nx-form-field>
+      <nx-form-field label="Category" required>
+        <select nxControl formControlName="category">
+          @for (c of categories; track c.value) {
+            <option [value]="c.value">{{ c.label }}</option>
+          }
+        </select>
+      </nx-form-field>
+      <nx-form-field label="Status" required>
+        <select nxControl formControlName="status">
+          @for (s of statuses; track s) {
+            <option [value]="s">{{ s | titlecase }}</option>
+          }
+        </select>
+      </nx-form-field>
+      <nx-form-field label="Name" required hint="e.g. HVAC [3] - Dining">
+        <input nxControl formControlName="name" />
+      </nx-form-field>
+      <nx-form-field label="Area served" hint="e.g. Kitchen, Walk-in">
+        <input nxControl formControlName="area_served" />
+      </nx-form-field>
+    </fieldset>
+
+    <fieldset class="nx-fieldset">
+      <legend>Make and lifecycle</legend>
+      <nx-form-field label="Manufacturer">
+        <input nxControl formControlName="manufacturer" />
+      </nx-form-field>
+      <nx-form-field label="Model">
+        <input nxControl formControlName="model" class="nx-mono" />
+      </nx-form-field>
+      <nx-form-field class="span-2" label="Serial number">
+        <input nxControl formControlName="serial_number" class="nx-mono" />
+      </nx-form-field>
+      <ng-container formGroupName="dates">
+        <nx-form-field label="Install date">
+          <input nxControl formControlName="install_date" type="date" />
+        </nx-form-field>
+        <nx-form-field label="Warranty until">
+          <input nxControl formControlName="warranty_until" type="date" />
+        </nx-form-field>
+        @if (datesError) {
+          <p class="span-2 date-error" role="alert">
+            The warranty end date must be on or after the install date.
+          </p>
+        }
+      </ng-container>
+    </fieldset>
+
+    <div class="nx-form-actions">
+      <a nxButton [routerLink]="isEdit ? ['/equipment', id()] : ['/equipment']">Cancel</a>
+      <button nxButton type="submit" variant="primary" [loading]="saving()">
+        {{ isEdit ? 'Save changes' : 'Add equipment' }}
+      </button>
+    </div>
+  </form>
+}
+
+<style>
+  .date-error {
+    font-size: var(--text-sm);
+    color: var(--status-danger-fg);
+  }
+</style>

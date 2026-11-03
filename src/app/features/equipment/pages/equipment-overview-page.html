@@ -1,0 +1,128 @@
+@if (!inSite) {
+  <nx-page-header
+    title="Equipment"
+    subtitle="Physical equipment across every site, grouped by category."
+    [count]="result.hasValue() ? total() : null"
+  >
+    @if (auth.canWrite()) {
+      <a nxButton actions variant="primary" routerLink="/equipment/new">
+        <nx-icon name="plus" /> New equipment
+      </a>
+    }
+  </nx-page-header>
+}
+
+<div class="nx-toolbar" role="search">
+  <nx-search-input
+    label="Search equipment"
+    placeholder="Name, serial, make, area"
+    [value]="q()"
+    (search)="onSearch($event)"
+  />
+  <label>
+    <span class="nx-visually-hidden">Category</span>
+    <select
+      class="nx-select"
+      [value]="category()"
+      (change)="onFilter('category', $any($event.target).value)"
+    >
+      <option value="">All categories</option>
+      @for (c of categories; track c.value) {
+        <option [value]="c.value">{{ c.label }}</option>
+      }
+    </select>
+  </label>
+  <label>
+    <span class="nx-visually-hidden">Status</span>
+    <select
+      class="nx-select"
+      [value]="status()"
+      (change)="onFilter('status', $any($event.target).value)"
+    >
+      <option value="">All statuses</option>
+      @for (s of statuses; track s) {
+        <option [value]="s">{{ s | titlecase }}</option>
+      }
+    </select>
+  </label>
+  @if (hasFilters()) {
+    <button nxButton type="button" variant="ghost" (click)="clearFilters()">Clear filters</button>
+  }
+  @if (inSite && auth.canWrite()) {
+    <a nxButton class="push" routerLink="/equipment/new" [queryParams]="newLink()">
+      <nx-icon name="plus" /> Add equipment
+    </a>
+  }
+</div>
+
+@if (errorMessage()) {
+  <nx-empty-state
+    icon="server-crash"
+    heading="Equipment could not be loaded"
+    [message]="errorMessage()"
+  >
+    <button nxButton type="button" (click)="result.reload()">Try again</button>
+  </nx-empty-state>
+} @else if (result.hasValue() && groups().length === 0) {
+  <nx-empty-state
+    icon="equipment"
+    heading="No equipment found"
+    [message]="
+      hasFilters() ? 'Nothing matches these filters.' : 'No equipment has been recorded yet.'
+    "
+  />
+} @else {
+  <div class="groups" [attr.aria-busy]="result.isLoading()">
+    @for (g of groups(); track g.category) {
+      @let open = !collapsed().has(g.category);
+      <section class="group" [attr.aria-labelledby]="'grp-' + g.category">
+        <h2 class="group-head">
+          <button
+            type="button"
+            [id]="'grp-' + g.category"
+            [attr.aria-expanded]="open"
+            [attr.aria-controls]="'grp-body-' + g.category"
+            (click)="toggle(g.category)"
+          >
+            <nx-icon [name]="open ? 'chevron-down' : 'chevron-right'" />
+            <span class="label">{{ g.label }}</span>
+            <span class="count nx-tabular"
+              >{{ g.rows.length }} {{ g.rows.length === 1 ? 'unit' : 'units' }}</span
+            >
+            @if (g.down) {
+              <nx-badge tone="danger" dot>{{ g.down }} down</nx-badge>
+            }
+            @if (g.degraded) {
+              <nx-badge tone="warning" dot>{{ g.degraded }} degraded</nx-badge>
+            }
+          </button>
+        </h2>
+        @if (open) {
+          <nx-data-table
+            [id]="'grp-body-' + g.category"
+            [caption]="g.label"
+            [columns]="columns()"
+            [rows]="g.rows"
+            [rowLink]="link"
+          >
+            <ng-template nxCell="name" let-row>
+              <a class="nx-primary-link" [routerLink]="['/equipment', row.id]">{{ row.name }}</a>
+            </ng-template>
+            <ng-template nxCell="model" let-row>
+              {{ row.manufacturer ?? '–' }} <span class="nx-muted">{{ row.model }}</span>
+            </ng-template>
+            <ng-template nxCell="serial_number" let-row>
+              <span class="nx-mono">{{ row.serial_number ?? '–' }}</span>
+            </ng-template>
+            <ng-template nxCell="site" let-row>
+              <a class="nx-mono" [routerLink]="['/sites', row.site_id]">{{ row.site?.code }}</a>
+            </ng-template>
+            <ng-template nxCell="status" let-row
+              ><nx-status-badge [status]="row.status"
+            /></ng-template>
+          </nx-data-table>
+        }
+      </section>
+    }
+  </div>
+}

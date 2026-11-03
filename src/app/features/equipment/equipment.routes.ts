@@ -1,16 +1,35 @@
 import { Routes } from '@angular/router';
+import { roleGuard } from '../../core/auth/auth.guards';
 
-// Placeholder until Milestone 4. Real list/detail/form routes replace this.
 export default [
   {
     path: '',
     title: 'Equipment · Nexus',
-    loadComponent: () => import('../../shared/ui/placeholder-page'),
-    data: {
-      title: 'Equipment',
-      milestone: '4',
-      summary:
-        'Equipment overview grouped by category, with per-unit specs, linked devices and a unified activity timeline.',
-    },
+    loadComponent: () => import('./pages/equipment-overview-page'),
+  },
+  {
+    path: 'new',
+    title: 'New equipment · Nexus',
+    canActivate: [roleGuard('operator')],
+    data: { breadcrumb: 'New' },
+    loadComponent: () => import('./pages/equipment-form-page'),
+  },
+  {
+    path: ':id',
+    data: { breadcrumb: ':record' },
+    children: [
+      {
+        path: '',
+        title: 'Equipment · Nexus',
+        loadComponent: () => import('./pages/equipment-detail-page'),
+      },
+      {
+        path: 'edit',
+        title: 'Edit equipment · Nexus',
+        canActivate: [roleGuard('operator')],
+        data: { breadcrumb: 'Edit' },
+        loadComponent: () => import('./pages/equipment-form-page'),
+      },
+    ],
   },
 ] satisfies Routes;

@@ -329,7 +329,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          author_id: string
+          author_id?: string
           body: string
           created_at?: string
           equipment_id: string
@@ -371,7 +371,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          author_id: string
+          author_id?: string
           body: string
           created_at?: string
           id?: string
@@ -916,6 +916,14 @@ export type Database = {
       current_member_id: { Args: never; Returns: string }
       is_admin: { Args: never; Returns: boolean }
       is_seeding: { Args: never; Returns: boolean }
+      telemetry_series: {
+        Args: { p_bucket: unknown; p_device_id: string; p_since: string }
+        Returns: {
+          bucket: string
+          metric: Database["public"]["Enums"]["telemetry_metric"]
+          value: number
+        }[]
+      }
     }
     Enums: {
       app_role: "viewer" | "operator" | "admin"

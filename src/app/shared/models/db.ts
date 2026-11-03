@@ -6,13 +6,14 @@
  */
 import type {
   Database,
+  Json,
   Enums,
   Tables,
   TablesInsert,
   TablesUpdate,
 } from '../../core/supabase/database.types';
 
-export type { Database };
+export type { Database, Json };
 
 // Rows
 export type Customer = Tables<'customers'>;

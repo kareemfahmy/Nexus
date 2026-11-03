@@ -54,19 +54,16 @@ export default [
           },
           {
             path: 'equipment',
-            ...placeholder(
-              'Equipment',
-              '4',
-              'Equipment installed at this site, grouped by category.',
-            ),
+            title: 'Site equipment · Nexus',
+            data: { breadcrumb: 'Equipment' },
+            // same component as /equipment: it detects the SiteWorkspaceStore and scopes itself
+            loadComponent: () => import('../equipment/pages/equipment-overview-page'),
           },
           {
             path: 'devices',
-            ...placeholder(
-              'Devices',
-              '4',
-              'IoT devices at this site with connectivity and telemetry.',
-            ),
+            title: 'Site devices · Nexus',
+            data: { breadcrumb: 'Devices' },
+            loadComponent: () => import('../devices/pages/device-list-page'),
           },
           {
             path: 'work-orders',

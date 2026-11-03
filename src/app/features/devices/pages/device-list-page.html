@@ -1,0 +1,95 @@
+@if (!inSite) {
+  <nx-page-header
+    title="Devices"
+    subtitle="Connected IoT devices: thermostats, sensors, meters, controllers and gateways."
+    [count]="result.hasValue() ? page$().total : null"
+  />
+}
+
+<div class="connectivity" role="group" aria-label="Filter by connectivity">
+  @for (s of connectivityOptions; track s) {
+    <button
+      type="button"
+      class="stat"
+      [class]="'stat tone-' + s"
+      [attr.aria-pressed]="connectivity() === s"
+      (click)="onConnectivity(s)"
+    >
+      <nx-status-badge [status]="s" />
+      <span class="value nx-tabular">{{ count(s) ?? '–' }}</span>
+    </button>
+  }
+</div>
+
+<div class="nx-toolbar" role="search">
+  <nx-search-input
+    label="Search devices"
+    placeholder="Name, identifier, make"
+    [value]="q()"
+    (search)="onSearch($event)"
+  />
+  <label>
+    <span class="nx-visually-hidden">Device type</span>
+    <select class="nx-select" [value]="type()" (change)="onType($any($event.target).value)">
+      <option value="">All types</option>
+      @for (t of types; track t) {
+        <option [value]="t">{{ typeLabel[t] }}</option>
+      }
+    </select>
+  </label>
+</div>
+
+@if (errorMessage()) {
+  <nx-empty-state
+    icon="server-crash"
+    heading="Devices could not be loaded"
+    [message]="errorMessage()"
+  >
+    <button nxButton type="button" (click)="result.reload()">Try again</button>
+  </nx-empty-state>
+} @else {
+  <nx-data-table
+    caption="Devices"
+    [columns]="columns()"
+    [rows]="page$().rows"
+    [loading]="result.isLoading()"
+    [sort]="query().sort"
+    [dir]="query().dir"
+    [rowLink]="link"
+    emptyMessage="No devices match these filters."
+    (sortChange)="onSort($event)"
+  >
+    <ng-template nxCell="name" let-row>
+      <a class="nx-primary-link" [routerLink]="['/devices', row.id]">{{ row.name }}</a>
+    </ng-template>
+    <ng-template nxCell="device_type" let-row>{{ typeName(row.device_type) }}</ng-template>
+    <ng-template nxCell="external_id" let-row
+      ><span class="nx-mono small">{{ row.external_id }}</span></ng-template
+    >
+    <ng-template nxCell="site" let-row>
+      <a class="nx-mono" [routerLink]="['/sites', row.site_id]">{{ row.site?.code }}</a>
+    </ng-template>
+    <ng-template nxCell="connectivity_status" let-row>
+      <nx-status-badge [status]="row.connectivity_status" />
+    </ng-template>
+    <ng-template nxCell="last_seen_at" let-row>
+      <time
+        [attr.datetime]="row.last_seen_at"
+        [title]="row.last_seen_at ? (row.last_seen_at | date: 'medium') : ''"
+        [class.stale]="stale(row.last_seen_at)"
+      >
+        {{ row.last_seen_at | relativeTime }}
+      </time>
+    </ng-template>
+    <ng-template nxCell="health_score" let-row>
+      <span class="nx-tabular">{{ row.health_score ?? '–' }}</span>
+    </ng-template>
+  </nx-data-table>
+
+  <nx-pagination
+    [page]="query().page"
+    [pageSize]="query().pageSize"
+    [total]="page$().total"
+    (pageChange)="onPage($event)"
+  />
+}

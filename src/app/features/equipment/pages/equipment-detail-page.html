@@ -1,0 +1,171 @@
+@if (notFound()) {
+  <nx-empty-state
+    icon="search"
+    heading="Equipment not found"
+    [level]="1"
+    message="It may have been removed, or the link is outdated."
+  >
+    <a nxButton routerLink="/equipment">Back to equipment</a>
+  </nx-empty-state>
+} @else if (errorMessage()) {
+  <nx-empty-state
+    icon="server-crash"
+    heading="Equipment could not be loaded"
+    [message]="errorMessage()"
+  >
+    <button nxButton type="button" (click)="equipment.reload()">Try again</button>
+  </nx-empty-state>
+} @else if (equipment.hasValue()) {
+  @let e = equipment.value();
+  <nx-page-header
+    [title]="e.name"
+    [subtitle]="categoryLabel[e.category] + (e.site ? ' · ' + e.site.code + ' ' + e.site.name : '')"
+  >
+    <nx-status-badge actions [status]="e.status" />
+    @if (e.site) {
+      <a nxButton actions [routerLink]="['/sites', e.site.id, 'equipment']">Site equipment</a>
+    }
+    @if (auth.canWrite()) {
+      <a nxButton actions [routerLink]="['/equipment', e.id, 'edit']"
+        ><nx-icon name="pencil" /> Edit</a
+      >
+    }
+  </nx-page-header>
+
+  <div class="nx-columns">
+    <div class="nx-stack">
+      @if (thermostat(); as t) {
+        <nx-thermostat-card [deviceId]="t.id" />
+        <nx-telemetry-panel [deviceId]="t.id" deviceType="thermostat" />
+      } @else if (sensor(); as s) {
+        <nx-telemetry-panel [deviceId]="s.id" deviceType="temp_sensor" />
+      }
+
+      <section class="nx-panel" aria-labelledby="activity-heading">
+        <div class="activity-head">
+          <h2 id="activity-heading">Activity</h2>
+          <div class="chips" role="group" aria-label="Filter activity">
+            @for (f of filters; track f.value) {
+              <button
+                type="button"
+                [attr.aria-pressed]="filter() === f.value"
+                (click)="filter.set(f.value)"
+              >
+                {{ f.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (auth.canWrite()) {
+          <form class="note-form" [formGroup]="noteForm" (ngSubmit)="addNote()" novalidate>
+            <nx-form-field
+              label="Add a note"
+              [messages]="{ required: 'Write something before saving the note.' }"
+            >
+              <textarea
+                nxControl
+                formControlName="body"
+                rows="2"
+                placeholder="What did you observe or do?"
+              ></textarea>
+            </nx-form-field>
+            <div class="note-actions">
+              <button nxButton type="submit" size="sm" variant="primary" [loading]="savingNote()">
+                Add note
+              </button>
+            </div>
+          </form>
+        }
+
+        @if (activity.hasValue()) {
+          <ol class="timeline">
+            @for (item of timeline(); track item.id) {
+              <li [class]="item.kind">
+                <span class="marker" aria-hidden="true">
+                  <nx-icon [name]="item.kind === 'note' ? 'work-order' : 'activity'" [size]="14" />
+                </span>
+                <div class="entry">
+                  <p class="meta">
+                    <strong>{{ item.who }}</strong>
+                    {{
+                      item.kind === 'note'
+                        ? 'added a note'
+                        : item.action === 'created'
+                          ? 'created the record'
+                          : 'changed'
+                    }}
+                    ·
+                    <time [attr.datetime]="item.at" [title]="item.at | date: 'medium'">{{
+                      item.at | relativeTime
+                    }}</time>
+                  </p>
+                  @if (item.kind === 'note') {
+                    <p class="body">{{ item.body }}</p>
+                  } @else if (item.action !== 'created') {
+                    <ul class="changes">
+                      @for (line of describeChange(item); track line) {
+                        <li>{{ line }}</li>
+                      }
+                    </ul>
+                  }
+                </div>
+              </li>
+            } @empty {
+              <li class="empty nx-muted">No activity of this type yet.</li>
+            }
+          </ol>
+        } @else {
+          <nx-skeleton height="120px" />
+        }
+      </section>
+    </div>
+
+    <aside class="nx-stack">
+      <section class="nx-panel" aria-labelledby="specs-heading">
+        <h2 id="specs-heading">Specifications</h2>
+        <dl class="nx-dl">
+          <dt>Manufacturer</dt>
+          <dd>{{ e.manufacturer ?? '–' }}</dd>
+          <dt>Model</dt>
+          <dd class="nx-mono">{{ e.model ?? '–' }}</dd>
+          <dt>Serial</dt>
+          <dd class="nx-mono">{{ e.serial_number ?? '–' }}</dd>
+          <dt>Area served</dt>
+          <dd>{{ e.area_served ?? '–' }}</dd>
+          <dt>Installed</dt>
+          <dd>{{ e.install_date ? (e.install_date | date: 'mediumDate') : '–' }}</dd>
+          <dt>Warranty until</dt>
+          <dd>{{ e.warranty_until ? (e.warranty_until | date: 'mediumDate') : '–' }}</dd>
+          @for (s of specs(); track s.label) {
+            <dt>{{ s.label }}</dt>
+            <dd>{{ s.value }}</dd>
+          }
+        </dl>
+      </section>
+
+      <section class="nx-panel" aria-labelledby="devices-heading">
+        <h2 id="devices-heading">Connected devices</h2>
+        @if (devices.hasValue()) {
+          <ul class="devices" role="list">
+            @for (d of devices.value(); track d.id) {
+              <li>
+                <a [routerLink]="['/devices', d.id]">{{ typeLabel[d.device_type] }}</a>
+                <nx-status-badge [status]="d.connectivity_status" />
+                <span class="nx-muted nx-mono id">{{ d.external_id }}</span>
+                <span class="nx-muted seen">Last seen {{ d.last_seen_at | relativeTime }}</span>
+              </li>
+            } @empty {
+              <li class="nx-muted">No IoT devices are attached to this equipment.</li>
+            }
+          </ul>
+        } @else {
+          <nx-skeleton height="64px" />
+        }
+      </section>
+    </aside>
+  </div>
+} @else {
+  <nx-skeleton width="320px" height="28px" />
+  <nx-skeleton height="320px" />
+}

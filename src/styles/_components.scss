@@ -51,6 +51,7 @@
   // Overlays
   --dialog-width: 480px;
   --drawer-width: 480px;
+  --scroll-panel-max: 320px; // inline scrollable data tables (e.g. telemetry readings)
 }
 
 @media (max-width: 767px) {
