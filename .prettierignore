@@ -1,0 +1,2 @@
+# Generated from the live Supabase schema; keep byte-identical to generator output
+src/app/core/supabase/database.types.ts

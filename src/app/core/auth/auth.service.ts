@@ -8,13 +8,14 @@ export type AppRole = Database['public']['Enums']['app_role'];
 const ROLE_RANK: Record<AppRole, number> = { viewer: 0, operator: 1, admin: 2 };
 
 /**
- * Owns the authentication session and exposes it as signals.
+ * Owns the authentication session and the user's role, exposed as signals.
  *
- * Flow: Supabase restores the session from localStorage → `init()` reads it →
- * `onAuthStateChange` keeps the `session` signal in sync (sign-in, sign-out, token refresh).
- * Everything else (guards, topbar, role checks) derives from `session` with `computed()`.
+ * Flow: Supabase restores the session from localStorage → `init()` reads it and loads the role
+ * from `public.profiles` → `onAuthStateChange` keeps both in sync (sign-in, sign-out, refresh).
+ * Everything else (guards, topbar, role checks) derives from these with `computed()`.
  *
- * IMPORTANT: role checks here only shape the UI. Postgres RLS is the real enforcement.
+ * This is the one core service allowed to query Supabase directly (auth is app infrastructure,
+ * not a feature). IMPORTANT: role checks here only shape the UI; Postgres RLS is the enforcement.
  */
 @Service()
 export class AuthService {
@@ -41,7 +42,7 @@ export class AuthService {
 
   private initPromise: Promise<void> | null = null;
 
-  /** Resolves once the stored session has been read. Guards await this. Safe to call repeatedly. */
+  /** Resolves once the stored session and role have been loaded. Guards await this. Idempotent. */
   init(): Promise<void> {
     this.initPromise ??= this.restoreSession();
     return this.initPromise;
@@ -52,33 +53,49 @@ export class AuthService {
   }
 
   async signInWithPassword(email: string, password: string): Promise<void> {
-    const { error } = await this.supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await this.supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+    await this.applySession(data.session); // role is known before we navigate
   }
 
   /** "Explore the demo": anonymous Supabase session, always read-only (viewer). */
   async signInAsGuest(): Promise<void> {
-    const { error } = await this.supabase.auth.signInAnonymously();
+    const { data, error } = await this.supabase.auth.signInAnonymously();
     if (error) throw error;
+    await this.applySession(data.session);
   }
 
   async signOut(): Promise<void> {
     await this.supabase.auth.signOut();
+    await this.applySession(null);
   }
 
   private async restoreSession(): Promise<void> {
     const { data } = await this.supabase.auth.getSession();
-    this.applySession(data.session);
-    this.supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session) =>
-      this.applySession(session),
-    );
+    await this.applySession(data.session);
+    this.supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session) => {
+      // Supabase warns against awaiting other Supabase calls inside this callback (it can
+      // deadlock the auth lock), so the role lookup is deferred to the next macrotask.
+      setTimeout(() => void this.applySession(session));
+    });
     this.readySignal.set(true);
   }
 
-  private applySession(session: Session | null): void {
+  private async applySession(session: Session | null): Promise<void> {
     this.sessionSignal.set(session);
-    // TODO(M2b): load the role from public.profiles once the table exists.
-    // Until then every signed-in user is treated as a viewer in the UI.
-    this.roleSignal.set('viewer');
+    this.roleSignal.set(await this.loadRole(session));
+  }
+
+  /** Guests and signed-out users are viewers; real users read their row in public.profiles. */
+  private async loadRole(session: Session | null): Promise<AppRole> {
+    const user = session?.user;
+    if (!user || user.is_anonymous) return 'viewer';
+    const { data, error } = await this.supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle();
+    if (error || !data) return 'viewer'; // fail closed: least privilege
+    return data.role;
   }
 }
