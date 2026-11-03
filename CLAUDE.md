@@ -9,7 +9,8 @@ The full approved plan is in `docs/architecture-plan.md`. Read it before startin
 - UI layer: **custom SCSS design tokens** (primitive → semantic → component) + `@angular/cdk` + `@angular/aria`. No Tailwind, no Material or PrimeNG.
 - Theme: **light only**. Tokens are layered so dark mode can be added later.
 - Fonts: IBM Plex Sans (UI) + IBM Plex Mono (IDs and numbers). This overrides ui-ux-pro-max's Fira suggestion.
-- Libraries: `@supabase/supabase-js`, `echarts` + `ngx-echarts`, `lucide-angular`, `date-fns`. There's one library per job, so don't add duplicates.
+- Libraries: `@supabase/supabase-js`, `echarts` + `ngx-echarts`, `@lucide/angular` (NOT `lucide-angular`, which doesn't support v22; register icons in `shared/ui/icon.ts`), `date-fns`. There's one library per job, so don't add duplicates.
+- Services: use the v22 `@Service()` decorator (`@Service({ autoProvided: false })` for route-scoped stores).
 - Data access: Supabase queries live ONLY in `features/*/data/*.service.ts`. Components and stores use `resource()`. Per-feature signal stores are used, with no NgRx.
 - List state (sort, filter, page) lives in URL query params.
 - Demo access: guest "Explore demo" button uses Supabase anonymous sign-in, which gives the viewer role (read-only). Real accounts get the operator or admin role.
@@ -17,6 +18,7 @@ The full approved plan is in `docs/architecture-plan.md`. Read it before startin
 - Styling rule: components use semantic tokens (`var(--…)`) only, never raw hex. Check with `node .claude/skills/design-system/scripts/validate-tokens.cjs --dir src/`.
 
 ## Supabase
+- The cloud sandbox network policy blocks *.supabase.co, so browser sign-in can't be tested from the container (MCP tools still work). The user tests auth in their own browser.
 - Hosted project "Nexus": ref `csblzgxsskyfpgsevlgd`, eu-central-1, Postgres 17.
 - Migrations in `supabase/migrations/` are the source of truth. They're applied via the Supabase MCP `apply_migration`.
 - Regenerate `src/app/core/supabase/database.types.ts` after every migration.
@@ -35,7 +37,7 @@ The full approved plan is in `docs/architecture-plan.md`. Read it before startin
 
 ## Status
 - [x] M1 Planning (approved)
-- [ ] M2a Foundation (in progress)
+- [x] M2a Foundation (shell, routing, tokens, shared UI v1, auth + guards, docs)
 - [ ] M2b Database
 - [ ] M3–M10 (see plan)
 

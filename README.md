@@ -1,59 +1,90 @@
 # Nexus
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.5.
+**Enterprise facility and IoT operations platform.** It manages customers, their sites, the equipment installed there, connected IoT devices, and the work orders and incidents that keep it all running.
 
-## Development server
+> Portfolio project built with **Angular 22 + Supabase (PostgreSQL)**. All data is fictional and all telemetry is simulated.
 
-To start a local development server, run:
+**Status:** Milestone 2a (foundation) complete. See [roadmap](#roadmap).
 
-```bash
-ng serve
-```
+---
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Tech stack
 
-## Code scaffolding
+| Layer | Choice |
+|---|---|
+| Frontend | Angular 22 (standalone, zoneless, signals, OnPush by default), TypeScript strict, SCSS |
+| Forms | Typed Reactive Forms |
+| UI | Custom design-token system (`src/styles`) + Angular CDK + `@angular/aria` + Lucide icons |
+| Backend | Supabase: PostgreSQL, Auth, Row Level Security, generated TypeScript types |
+| Tests | Vitest (unit), Playwright (e2e, Milestone 10) |
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Getting started
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+Requirements: Node 22+, npm 10+.
 
 ```bash
-ng build
+npm install
 ```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
 
 ```bash
-ng test
+npm start
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+The app runs at http://localhost:4200. Click **Explore the demo (read-only)** for guest access.
 
 ```bash
-ng e2e
+npm run build
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+```bash
+npm test -- --watch=false
+```
 
-## Additional Resources
+### Environment configuration
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Supabase settings live in `src/environments/environment*.ts`:
+
+| Key | Where to find it |
+|---|---|
+| `supabase.url` | Supabase dashboard → Project Settings → API |
+| `supabase.publishableKey` | Same page, the `sb_publishable_…` key |
+
+The publishable key is **public by design**. Data is protected by Row Level Security in Postgres, not by hiding the key. **Never** put the `service_role` key in frontend code.
+
+### Supabase setup
+
+1. Create a Supabase project and copy its URL and publishable key into the environment files.
+2. Enable **Authentication → Sign In / Providers → Anonymous sign-ins** so the read-only guest demo works. Turning on CAPTCHA or rate limiting is recommended.
+3. Apply database migrations and seed data. *Arrives in Milestone 2b (`supabase/migrations`, `supabase/seed.sql`).*
+
+## Project structure
+
+```
+src/app/
+  core/        app-wide singletons: Supabase client token, auth, layout shell
+  shared/ui/   reusable presentational components (button, badges, empty state, toast, dialog…)
+  features/    one folder per module, lazy-loaded (customers, sites, equipment, devices…)
+src/styles/    design tokens: primitives → semantic → component
+design-system/ design rules (MASTER.md) produced with the ui-ux-pro-max skill
+docs/          architecture, decisions (ADRs), approved plan
+```
+
+More detail is in [docs/architecture.md](docs/architecture.md).
+
+## Roadmap
+
+| # | Milestone | Status |
+|---|---|---|
+| 1 | Product architecture and planning | ✅ |
+| 2a | Foundation: shell, routing, design system, auth | ✅ |
+| 2b | Database: schema, RLS, seed data, generated types | ⏳ |
+| 3 | Customers and Sites | |
+| 4 | Equipment | |
+| 5 | IoT Devices | |
+| 6 | Telemetry and monitoring | |
+| 7 | Work orders | |
+| 8 | Incidents | |
+| 9 | Dashboard and Analytics | |
+| 10 | Refinement, accessibility, e2e, deployment | |
+
+The full plan is in [docs/architecture-plan.md](docs/architecture-plan.md).
