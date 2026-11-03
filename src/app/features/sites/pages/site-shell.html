@@ -1,0 +1,90 @@
+@if (notFound()) {
+  <nx-empty-state
+    icon="search"
+    heading="Site not found"
+    message="It may have been deleted, or the link is outdated."
+  >
+    <a nxButton routerLink="/sites">Back to sites</a>
+  </nx-empty-state>
+} @else if (errorMessage()) {
+  <nx-empty-state icon="server-crash" heading="Site could not be loaded" [message]="errorMessage()">
+    <button nxButton type="button" (click)="store.refresh()">Try again</button>
+  </nx-empty-state>
+} @else {
+  <header class="header">
+    @if (store.site.hasValue()) {
+      @let site = store.site.value();
+      <div class="identity">
+        <p class="code nx-mono">{{ site.code }}</p>
+        <h1>{{ site.name }}</h1>
+        <p class="meta">
+          @if (site.customer) {
+            <a [routerLink]="['/customers', site.customer.id]">{{ site.customer.name }}</a>
+            <span aria-hidden="true">·</span>
+          }
+          <span
+            >{{ site.address_line1 }}, {{ site.city }}, {{ site.state }}
+            {{ site.postal_code }}</span
+          >
+        </p>
+      </div>
+
+      <div class="side">
+        <div class="actions">
+          <nx-status-badge [status]="site.status" />
+          @if (auth.canWrite()) {
+            <a nxButton size="sm" [routerLink]="['/sites', site.id, 'edit']"
+              ><nx-icon name="pencil" /> Edit</a
+            >
+          }
+          @if (auth.hasRole('admin')) {
+            <button nxButton size="sm" type="button" variant="ghost" (click)="remove()">
+              <nx-icon name="trash" /> Delete
+            </button>
+          }
+        </div>
+        @if (health(); as h) {
+          <ul class="chips" role="list" aria-label="Site health">
+            <li>
+              @if (h.devices_offline) {
+                <nx-badge tone="danger" dot>{{ h.devices_offline }} devices offline</nx-badge>
+              } @else {
+                <nx-badge tone="success" dot>All devices reporting</nx-badge>
+              }
+            </li>
+            @if (h.open_incidents) {
+              <li>
+                <nx-badge [tone]="h.critical_incidents ? 'danger' : 'warning'" dot>
+                  {{ h.open_incidents }} open incidents
+                </nx-badge>
+              </li>
+            }
+            @if (h.overdue_work_orders) {
+              <li>
+                <nx-badge tone="warning" dot
+                  >{{ h.overdue_work_orders }} overdue work orders</nx-badge
+                >
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    } @else {
+      <div class="identity">
+        <nx-skeleton width="90px" height="14px" />
+        <nx-skeleton width="280px" height="26px" />
+        <nx-skeleton width="360px" height="14px" />
+      </div>
+    }
+  </header>
+
+  <nav class="tabs" aria-label="Site sections">
+    @for (tab of tabs; track tab.path) {
+      <a [routerLink]="tab.path" routerLinkActive="active" ariaCurrentWhenActive="page">{{
+        tab.label
+      }}</a>
+    }
+  </nav>
+
+  <router-outlet />
+}

@@ -43,7 +43,16 @@ The full approved plan is in `docs/architecture-plan.md`. Read it before startin
 - [x] M1 Planning (approved)
 - [x] M2a Foundation (shell, routing, tokens, shared UI v1, auth + guards, docs)
 - [x] M2b Database (6 migrations, RLS 25/25 tests, deterministic seed, generated types)
-- [ ] M3–M10 (see plan)
+- [ ] M3 Customers and Sites (no global search)
+- [ ] M4 Assets: equipment + devices + telemetry chart / thermostat card (no simulator cron)
+- [ ] M5 Operations: work orders (full CRUD) + incidents (list, detail, timeline, comments, status)
+- [ ] M6 Dashboard (no separate analytics page)
+- [ ] M7 Deploy + README (live URL is the priority)
+
+TRIMMED ROADMAP (approved 2026-11-03, token budget): original M4-M10 merged into M4-M7 above.
+Cut: analytics page, command palette, banner/slides, telemetry simulator cron, global search.
+Process: short recaps (keep check questions), one screenshot pass per milestone, no local DB dry-run for small SQL.
+If budget gets tight: do M6 + M7 before M5.
 
 ---
 

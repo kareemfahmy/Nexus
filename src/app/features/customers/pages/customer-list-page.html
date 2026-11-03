@@ -1,0 +1,74 @@
+<nx-page-header
+  title="Customers"
+  subtitle="Accounts, their billing details and the sites they operate."
+  [count]="result.hasValue() ? page$().total : null"
+>
+  @if (auth.canWrite()) {
+    <a nxButton actions variant="primary" routerLink="/customers/new">
+      <nx-icon name="plus" /> New customer
+    </a>
+  }
+</nx-page-header>
+
+<div class="nx-toolbar" role="search">
+  <nx-search-input
+    label="Search customers"
+    placeholder="Search by name, account or industry"
+    [value]="q()"
+    (search)="onSearch($event)"
+  />
+  <label>
+    <span class="nx-visually-hidden">Status</span>
+    <select class="nx-select" [value]="status()" (change)="onStatus($any($event.target).value)">
+      <option value="">All statuses</option>
+      @for (s of statuses; track s) {
+        <option [value]="s">{{ s | titlecase }}</option>
+      }
+    </select>
+  </label>
+  @if (q() || status()) {
+    <button nxButton type="button" variant="ghost" (click)="clearFilters()">Clear filters</button>
+  }
+</div>
+
+@if (errorMessage()) {
+  <nx-empty-state
+    icon="server-crash"
+    heading="Customers could not be loaded"
+    [message]="errorMessage()"
+  >
+    <button nxButton type="button" (click)="result.reload()">Try again</button>
+  </nx-empty-state>
+} @else {
+  <nx-data-table
+    caption="Customers"
+    [columns]="columns"
+    [rows]="page$().rows"
+    [loading]="result.isLoading()"
+    [sort]="query().sort"
+    [dir]="query().dir"
+    [rowLink]="link"
+    emptyMessage="No customers match these filters."
+    (sortChange)="onSort($event)"
+  >
+    <ng-template nxCell="name" let-row>
+      <a class="nx-primary-link" [routerLink]="['/customers', row.id]">{{ row.name }}</a>
+    </ng-template>
+    <ng-template nxCell="account_number" let-row>
+      <span class="nx-mono">{{ row.account_number }}</span>
+    </ng-template>
+    <ng-template nxCell="status" let-row>
+      <nx-status-badge [status]="row.status" />
+    </ng-template>
+    <ng-template nxCell="billing_city" let-row>
+      {{ row.billing_city ? row.billing_city + ', ' + row.billing_state : '–' }}
+    </ng-template>
+  </nx-data-table>
+
+  <nx-pagination
+    [page]="query().page"
+    [pageSize]="query().pageSize"
+    [total]="page$().total"
+    (pageChange)="onPage($event)"
+  />
+}

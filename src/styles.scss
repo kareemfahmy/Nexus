@@ -110,3 +110,152 @@ code,
     animation: none !important;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Shared form controls (applied by the nxControl directive and used directly by filters)
+.nx-control,
+.nx-select {
+  width: 100%;
+  height: var(--control-height);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+  background: var(--color-surface);
+  transition: border-color var(--duration-fast) var(--ease-out);
+
+  &:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 0;
+    border-color: var(--color-focus);
+  }
+
+  &[aria-invalid='true'] {
+    border-color: var(--status-danger-dot);
+  }
+}
+
+textarea.nx-control {
+  height: auto;
+  min-height: calc(var(--control-height) * 3);
+  padding: var(--space-2) var(--space-3);
+  resize: vertical;
+}
+
+.nx-select {
+  width: auto;
+  padding-right: var(--space-7);
+}
+
+// ---------------------------------------------------------------------------
+// Page layout helpers shared by feature pages
+.nx-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.nx-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.nx-panel {
+  @include mx.panel;
+  padding: var(--space-4);
+
+  > h2 {
+    font-size: var(--text-md);
+    margin-bottom: var(--space-3);
+  }
+}
+
+.nx-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+
+  @include mx.down(mx.$bp-lg) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.nx-stack {
+  display: grid;
+  gap: var(--space-4);
+}
+
+// Definition list for record properties
+.nx-dl {
+  display: grid;
+  grid-template-columns: minmax(120px, max-content) 1fr;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+
+  dt {
+    color: var(--color-text-secondary);
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+// Forms
+.nx-form {
+  display: grid;
+  gap: var(--space-5);
+  max-width: var(--content-max-readable);
+}
+
+.nx-fieldset {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+
+  legend {
+    padding: 0 var(--space-1);
+    font-weight: var(--weight-semibold);
+  }
+
+  .span-2 {
+    grid-column: 1 / -1;
+  }
+
+  @include mx.down(mx.$bp-md) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.nx-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.nx-alert {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--status-danger-bg);
+  color: var(--status-danger-fg);
+}
+
+.nx-muted {
+  color: var(--color-text-muted);
+}
+
+.nx-primary-link {
+  font-weight: var(--weight-medium);
+}

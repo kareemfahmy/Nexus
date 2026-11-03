@@ -1,16 +1,87 @@
 import { Routes } from '@angular/router';
+import { roleGuard } from '../../core/auth/auth.guards';
+import { SiteWorkspaceStore } from './data/site-workspace.store';
 
-// Placeholder until Milestone 3. Real list/detail/form routes replace this.
+const placeholder = (title: string, milestone: string, summary: string) => ({
+  loadComponent: () => import('../../shared/ui/placeholder-page'),
+  data: { breadcrumb: title, title, milestone, summary },
+});
+
+/**
+ * /sites                     directory
+ * /sites/new                 create (operator+), optional ?customer=<id>
+ * /sites/:id/edit            edit (operator+)
+ * /sites/:id/<tab>           workspace: SiteShell (header + tabs) around the tab content
+ */
 export default [
+  { path: '', title: 'Sites · Nexus', loadComponent: () => import('./pages/site-list-page') },
   {
-    path: '',
-    title: 'Sites · Nexus',
-    loadComponent: () => import('../../shared/ui/placeholder-page'),
-    data: {
-      title: 'Sites',
-      milestone: '3',
-      summary:
-        'Site directory and a site workspace with overview, equipment, devices, work orders and incidents in one place.',
-    },
+    path: 'new',
+    title: 'New site · Nexus',
+    canActivate: [roleGuard('operator')],
+    data: { breadcrumb: 'New' },
+    loadComponent: () => import('./pages/site-form-page'),
+  },
+  {
+    path: ':id',
+    data: { breadcrumb: ':record' },
+    children: [
+      {
+        path: 'edit',
+        title: 'Edit site · Nexus',
+        canActivate: [roleGuard('operator')],
+        data: { breadcrumb: 'Edit' },
+        loadComponent: () => import('./pages/site-form-page'),
+      },
+      {
+        path: '',
+        loadComponent: () => import('./pages/site-shell'),
+        // A new store per site visit, shared by the shell and every tab below it.
+        providers: [SiteWorkspaceStore],
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'overview' },
+          {
+            path: 'overview',
+            title: 'Site overview · Nexus',
+            data: { breadcrumb: 'Overview' },
+            loadComponent: () => import('./pages/site-overview-page'),
+          },
+          {
+            path: 'details',
+            title: 'Site details · Nexus',
+            data: { breadcrumb: 'Details' },
+            loadComponent: () => import('./pages/site-details-page'),
+          },
+          {
+            path: 'equipment',
+            ...placeholder(
+              'Equipment',
+              '4',
+              'Equipment installed at this site, grouped by category.',
+            ),
+          },
+          {
+            path: 'devices',
+            ...placeholder(
+              'Devices',
+              '4',
+              'IoT devices at this site with connectivity and telemetry.',
+            ),
+          },
+          {
+            path: 'work-orders',
+            ...placeholder('Work orders', '5', 'Maintenance jobs for this site.'),
+          },
+          {
+            path: 'incidents',
+            ...placeholder(
+              'Incidents',
+              '5',
+              'Technical incidents for this site with their timeline.',
+            ),
+          },
+        ],
+      },
+    ],
   },
 ] satisfies Routes;

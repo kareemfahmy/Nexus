@@ -1,0 +1,116 @@
+<nx-page-header
+  [title]="isEdit ? 'Edit site' : 'New site'"
+  subtitle="Fields marked * are required."
+/>
+
+@if (loading()) {
+  <nx-skeleton height="360px" />
+} @else {
+  <form class="nx-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage()) {
+      <div class="nx-alert" role="alert">
+        <nx-icon name="alert" /> <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <fieldset class="nx-fieldset" formGroupName="identity">
+      <legend>Site</legend>
+      <nx-form-field
+        class="span-2"
+        label="Customer"
+        required
+        [hint]="isEdit ? 'A site cannot be moved to another customer from this form.' : ''"
+      >
+        <select nxControl formControlName="customer_id">
+          <option value="" disabled>Select a customer</option>
+          @if (customerOptions.hasValue()) {
+            @for (c of customerOptions.value(); track c.id) {
+              <option [value]="c.id">{{ c.name }}</option>
+            }
+          }
+        </select>
+      </nx-form-field>
+      <nx-form-field
+        label="Site code"
+        required
+        hint="Customer prefix and number, e.g. SPH-1224"
+        [messages]="{
+          pattern: 'Use 2 to 5 capital letters, a dash and 3 to 5 digits, e.g. SPH-1224.',
+        }"
+      >
+        <input nxControl formControlName="code" class="nx-mono" />
+      </nx-form-field>
+      <nx-form-field label="Status" required>
+        <select nxControl formControlName="status">
+          @for (s of statuses; track s) {
+            <option [value]="s">{{ s | titlecase }}</option>
+          }
+        </select>
+      </nx-form-field>
+      <nx-form-field
+        class="span-2"
+        label="Site name"
+        required
+        hint="How operators refer to it, e.g. Austin Downtown"
+      >
+        <input nxControl formControlName="name" />
+      </nx-form-field>
+    </fieldset>
+
+    <fieldset class="nx-fieldset" formGroupName="location">
+      <legend>Location</legend>
+      <nx-form-field class="span-2" label="Street address" required>
+        <input nxControl formControlName="address_line1" autocomplete="address-line1" />
+      </nx-form-field>
+      <nx-form-field label="City" required>
+        <input nxControl formControlName="city" autocomplete="address-level2" />
+      </nx-form-field>
+      <nx-form-field
+        label="State"
+        required
+        [messages]="{ pattern: 'Use the two-letter state code in capitals, e.g. TX.' }"
+      >
+        <input nxControl formControlName="state" maxlength="2" autocomplete="address-level1" />
+      </nx-form-field>
+      <nx-form-field
+        label="Postal code"
+        required
+        [messages]="{ pattern: 'Use a 5-digit ZIP code, e.g. 78701.' }"
+      >
+        <input
+          nxControl
+          formControlName="postal_code"
+          inputmode="numeric"
+          autocomplete="postal-code"
+        />
+      </nx-form-field>
+      <nx-form-field label="Time zone" required hint="Used for occupancy schedules and local times">
+        <select nxControl formControlName="timezone">
+          @for (tz of timezones; track tz) {
+            <option [value]="tz">{{ tz }}</option>
+          }
+        </select>
+      </nx-form-field>
+    </fieldset>
+
+    <fieldset class="nx-fieldset" formGroupName="facility">
+      <legend>Facility</legend>
+      <nx-form-field
+        label="Floor area (sq ft)"
+        [messages]="{ pattern: 'Enter a whole number between 100 and 9,999,999.' }"
+      >
+        <input nxControl formControlName="square_footage" inputmode="numeric" />
+      </nx-form-field>
+      <nx-form-field label="Opened on">
+        <input nxControl formControlName="opened_on" type="date" />
+      </nx-form-field>
+    </fieldset>
+
+    <div class="nx-form-actions">
+      <a nxButton [routerLink]="isEdit ? ['/sites', id()] : ['/sites']">Cancel</a>
+      <button nxButton type="submit" variant="primary" [loading]="saving()">
+        {{ isEdit ? 'Save changes' : 'Create site' }}
+      </button>
+    </div>
+  </form>
+}

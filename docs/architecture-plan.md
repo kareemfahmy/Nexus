@@ -294,7 +294,10 @@ Donuts only appear for 4 or fewer categories, per the skill's `no-pie-overuse` r
 - Deployment target. I recommend Netlify or Vercel static hosting in Milestone 10.
 - Whether you want your own operator account email.
 
-## H. Roadmap (each milestone = a reviewable PR-sized unit with ng build + tests green)
+## H. Roadmap
+
+> **Update (after M2b):** the roadmap was trimmed for budget. M4-M10 became **M4 Assets** (equipment + devices + telemetry), **M5 Operations** (work orders + incidents), **M6 Dashboard**, **M7 Deploy**. The analytics page, command palette, telemetry simulator, global search and portfolio banners/slides were cut. The table below is the original plan for reference.
+ (each milestone = a reviewable PR-sized unit with ng build + tests green)
 
 The sequence is refined from your draft. Milestone 2 is split because foundation and database are each large enough to review separately.
 

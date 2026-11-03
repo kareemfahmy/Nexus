@@ -1,0 +1,95 @@
+@use 'mixins' as mx;
+
+:host {
+  display: block;
+  @include mx.panel;
+}
+
+// Wide tables scroll inside their own box, never the page.
+.scroller {
+  overflow-x: auto;
+
+  &[aria-busy='true'] tbody {
+    opacity: 0.6;
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  height: var(--table-row-height);
+  padding: 0 var(--space-3);
+  background: var(--table-header-bg);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-align: start;
+  white-space: nowrap;
+}
+
+td {
+  height: var(--table-row-height);
+  padding: var(--space-1) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.end {
+  text-align: end;
+}
+
+.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0 calc(-1 * var(--space-1));
+  padding: var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+
+  &:hover {
+    background: var(--color-border);
+    color: var(--color-text);
+  }
+}
+
+.sort-icon {
+  display: inline-flex;
+  color: var(--color-text-muted);
+}
+
+tr.clickable {
+  cursor: pointer;
+
+  &:hover td {
+    background: var(--table-row-hover);
+  }
+}
+
+.empty {
+  height: auto;
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+@include mx.down(mx.$bp-md) {
+  .mobile-hidden {
+    display: none;
+  }
+}

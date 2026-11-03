@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRouteSnapshot, NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { Icon } from '../../shared/ui/icon';
+import { BreadcrumbService } from './breadcrumb.service';
 
 interface Crumb {
   label: string;
@@ -65,6 +66,7 @@ interface Crumb {
 })
 export class Breadcrumbs {
   private readonly router = inject(Router);
+  private readonly names = inject(BreadcrumbService);
 
   private readonly navEnd = toSignal(
     this.router.events.pipe(
@@ -81,8 +83,12 @@ export class Breadcrumbs {
     while (route) {
       const segment = route.url.map((s) => s.path).join('/');
       if (segment) url += `/${segment}`;
-      const label = route.routeConfig?.data?.['breadcrumb'];
-      if (typeof label === 'string' && crumbs.at(-1)?.label !== label) {
+      const raw = route.routeConfig?.data?.['breadcrumb'];
+      // ':record' = name of the record in this URL, supplied by the detail page once loaded
+      const label = raw === ':record' ? (this.names.labelFor(url) ?? '…') : raw;
+      if (typeof label === 'string' && segment && crumbs.at(-1)?.url !== url) {
+        crumbs.push({ label, url });
+      } else if (typeof label === 'string' && !segment && crumbs.length === 0) {
         crumbs.push({ label, url: url || '/' });
       }
       route = route.firstChild;

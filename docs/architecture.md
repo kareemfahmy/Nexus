@@ -109,3 +109,12 @@ auth.users 1──1 profiles (role)      auth.users 1──0..1 team_members (di
 | `jsonb specs` on equipment | Category-specific fields (tonnage, CFM, setpoint) without a table per category. |
 | Read-model views with `security_invoker` | Dashboard and site summaries are computed in SQL from real rows while RLS still applies. |
 | Business rules in triggers | Status workflows and audit history can't be bypassed by calling the API directly. See [rls.md](rls.md). |
+
+## 8. Bundle budget
+
+Initial JS is about 525 kB raw, or 134 kB gzipped:
+- Angular core and router: about 224 kB
+- supabase-js: about 166 kB
+- app shell: about 126 kB
+
+Supabase must load before the first navigation (session restore), so it can't be lazy. The warning budget is 600 kB and the error budget 1 MB. Feature code is lazy-loaded per route.

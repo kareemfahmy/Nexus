@@ -1,0 +1,69 @@
+<div class="scroller" [attr.aria-busy]="loading()">
+  <table>
+    <caption class="nx-visually-hidden">
+      {{
+        caption()
+      }}
+    </caption>
+    <thead>
+      <tr>
+        @for (col of columns(); track col.key) {
+          <th
+            scope="col"
+            [attr.aria-sort]="ariaSort(col)"
+            [class.end]="col.align === 'end'"
+            [class.mobile-hidden]="col.hideOnMobile"
+            [style.width]="col.width"
+          >
+            @if (col.sortable) {
+              <button type="button" class="sort" (click)="toggleSort(col)">
+                {{ col.label }}
+                <span class="sort-icon" aria-hidden="true">
+                  @if (sort() === col.key) {
+                    <nx-icon [name]="dir() === 'asc' ? 'chevron-up' : 'chevron-down'" [size]="14" />
+                  } @else {
+                    <nx-icon name="chevrons-up-down" [size]="14" />
+                  }
+                </span>
+              </button>
+            } @else {
+              {{ col.label }}
+            }
+          </th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @if (showSkeleton()) {
+        @for (r of skeletonRows; track r) {
+          <tr class="skeleton-row">
+            @for (col of columns(); track col.key) {
+              <td [class.mobile-hidden]="col.hideOnMobile"><nx-skeleton width="70%" /></td>
+            }
+          </tr>
+        }
+      } @else {
+        @for (row of rows(); track $index) {
+          <tr [class.clickable]="rowLink()" (click)="onRowClick(row, $event)">
+            @for (col of columns(); track col.key) {
+              <td [class.end]="col.align === 'end'" [class.mobile-hidden]="col.hideOnMobile">
+                @if (cellTemplates().get(col.key); as tpl) {
+                  <ng-container
+                    [ngTemplateOutlet]="tpl"
+                    [ngTemplateOutletContext]="{ $implicit: row }"
+                  />
+                } @else {
+                  {{ value(row, col.key) ?? '–' }}
+                }
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr>
+            <td class="empty" [attr.colspan]="columns().length">{{ emptyMessage() }}</td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>

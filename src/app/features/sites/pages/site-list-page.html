@@ -1,0 +1,115 @@
+<nx-page-header
+  title="Sites"
+  subtitle="Every customer location, with live device and operations health."
+  [count]="result.hasValue() ? page$().total : null"
+>
+  @if (auth.canWrite()) {
+    <a nxButton actions variant="primary" routerLink="/sites/new"
+      ><nx-icon name="plus" /> New site</a
+    >
+  }
+</nx-page-header>
+
+<div class="nx-toolbar" role="search">
+  <nx-search-input
+    label="Search sites"
+    placeholder="Search by code, name, customer or city"
+    [value]="q()"
+    (search)="onSearch($event)"
+  />
+  <label>
+    <span class="nx-visually-hidden">Customer</span>
+    <select
+      class="nx-select"
+      [value]="customer()"
+      (change)="onFilter('customer', $any($event.target).value)"
+    >
+      <option value="">All customers</option>
+      @if (customerOptions.hasValue()) {
+        @for (c of customerOptions.value(); track c.id) {
+          <option [value]="c.id" [selected]="c.id === customer()">{{ c.name }}</option>
+        }
+      }
+    </select>
+  </label>
+  <label>
+    <span class="nx-visually-hidden">Status</span>
+    <select
+      class="nx-select"
+      [value]="status()"
+      (change)="onFilter('status', $any($event.target).value)"
+    >
+      <option value="">All statuses</option>
+      @for (s of statuses; track s) {
+        <option [value]="s">{{ s | titlecase }}</option>
+      }
+    </select>
+  </label>
+  @if (hasFilters()) {
+    <button nxButton type="button" variant="ghost" (click)="clearFilters()">Clear filters</button>
+  }
+</div>
+
+@if (errorMessage()) {
+  <nx-empty-state
+    icon="server-crash"
+    heading="Sites could not be loaded"
+    [message]="errorMessage()"
+  >
+    <button nxButton type="button" (click)="result.reload()">Try again</button>
+  </nx-empty-state>
+} @else {
+  <nx-data-table
+    caption="Sites"
+    [columns]="columns"
+    [rows]="page$().rows"
+    [loading]="result.isLoading()"
+    [sort]="query().sort"
+    [dir]="query().dir"
+    [rowLink]="link"
+    emptyMessage="No sites match these filters."
+    (sortChange)="onSort($event)"
+  >
+    <ng-template nxCell="code" let-row>
+      <a class="nx-primary-link nx-mono" [routerLink]="['/sites', row.id]">{{ row.code }}</a>
+    </ng-template>
+    <ng-template nxCell="customer_name" let-row>
+      <a [routerLink]="['/customers', row.customer_id]">{{ row.customer_name }}</a>
+    </ng-template>
+    <ng-template nxCell="city" let-row>{{ row.city }}, {{ row.state }}</ng-template>
+    <ng-template nxCell="status" let-row><nx-status-badge [status]="row.status" /></ng-template>
+    <ng-template nxCell="devices_offline" let-row>
+      @if (row.devices_offline > 0) {
+        <nx-badge tone="danger" dot>{{ row.devices_offline }} offline</nx-badge>
+      } @else if (row.devices_warning > 0) {
+        <nx-badge tone="warning" dot>{{ row.devices_warning }} warning</nx-badge>
+      } @else {
+        <span class="nx-muted nx-tabular">{{ row.device_count }} online</span>
+      }
+    </ng-template>
+    <ng-template nxCell="open_incidents" let-row>
+      <span class="nx-tabular" [class.nx-muted]="!row.open_incidents">{{
+        row.open_incidents
+      }}</span>
+      @if (row.critical_incidents > 0) {
+        <span class="nx-visually-hidden">, {{ row.critical_incidents }} critical</span>
+        <nx-badge tone="danger">Sev 1–2</nx-badge>
+      }
+    </ng-template>
+    <ng-template nxCell="open_work_orders" let-row>
+      <span class="nx-tabular" [class.nx-muted]="!row.open_work_orders">{{
+        row.open_work_orders
+      }}</span>
+      @if (row.overdue_work_orders > 0) {
+        <nx-badge tone="warning">{{ row.overdue_work_orders }} overdue</nx-badge>
+      }
+    </ng-template>
+  </nx-data-table>
+
+  <nx-pagination
+    [page]="query().page"
+    [pageSize]="query().pageSize"
+    [total]="page$().total"
+    (pageChange)="onPage($event)"
+  />
+}

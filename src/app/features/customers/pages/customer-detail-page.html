@@ -1,0 +1,191 @@
+@if (notFound()) {
+  <nx-empty-state
+    icon="search"
+    heading="Customer not found"
+    message="It may have been deleted, or the link is outdated."
+  >
+    <a nxButton routerLink="/customers">Back to customers</a>
+  </nx-empty-state>
+} @else if (errorMessage()) {
+  <nx-empty-state
+    icon="server-crash"
+    heading="Customer could not be loaded"
+    [message]="errorMessage()"
+  >
+    <button nxButton type="button" (click)="customer.reload()">Try again</button>
+  </nx-empty-state>
+} @else if (customer.hasValue()) {
+  @let c = customer.value();
+  <nx-page-header
+    [title]="c.name"
+    [subtitle]="c.account_number + (c.industry ? ' · ' + c.industry : '')"
+  >
+    <nx-status-badge actions [status]="c.status" />
+    @if (auth.canWrite()) {
+      <a nxButton actions [routerLink]="['/customers', c.id, 'edit']"
+        ><nx-icon name="pencil" /> Edit</a
+      >
+    }
+    @if (auth.hasRole('admin')) {
+      <button nxButton actions type="button" variant="ghost" (click)="remove()">
+        <nx-icon name="trash" /> Delete
+      </button>
+    }
+  </nx-page-header>
+
+  <section class="nx-kpis" aria-label="Portfolio health">
+    <nx-kpi-stat label="Sites" [value]="totals().sites" />
+    <nx-kpi-stat label="Connected devices" [value]="totals().devices" />
+    <nx-kpi-stat
+      label="Devices offline"
+      [value]="totals().offline"
+      [tone]="totals().offline > 0 ? 'danger' : 'success'"
+    />
+    <nx-kpi-stat
+      label="Open incidents"
+      [value]="totals().openIncidents"
+      [tone]="totals().openIncidents > 0 ? 'warning' : 'neutral'"
+    />
+    <nx-kpi-stat
+      label="Open work orders"
+      [value]="totals().openWorkOrders"
+      [hint]="totals().overdue ? totals().overdue + ' overdue' : ''"
+      [tone]="totals().overdue > 0 ? 'warning' : 'neutral'"
+    />
+  </section>
+
+  <div class="nx-columns">
+    <section class="nx-stack" aria-labelledby="sites-heading">
+      <div class="section-head">
+        <h2 id="sites-heading" class="section-title">Sites</h2>
+        @if (auth.canWrite()) {
+          <a nxButton size="sm" routerLink="/sites/new" [queryParams]="{ customer: c.id }">
+            <nx-icon name="plus" /> Add site
+          </a>
+        }
+      </div>
+      <nx-data-table
+        caption="Sites for this customer"
+        [columns]="siteColumns"
+        [rows]="sites.hasValue() ? sites.value() : []"
+        [loading]="sites.isLoading()"
+        [rowLink]="siteLink"
+        emptyMessage="This customer has no sites yet."
+      >
+        <ng-template nxCell="code" let-row>
+          <a class="nx-primary-link nx-mono" [routerLink]="['/sites', row.id]">{{ row.code }}</a>
+        </ng-template>
+        <ng-template nxCell="status" let-row><nx-status-badge [status]="row.status" /></ng-template>
+        <ng-template nxCell="devices" let-row>
+          <span class="nx-tabular">{{ row.devices_online }}/{{ row.device_count }} online</span>
+          @if (row.devices_offline > 0) {
+            <span class="offline">· {{ row.devices_offline }} offline</span>
+          }
+        </ng-template>
+      </nx-data-table>
+    </section>
+
+    <aside class="nx-stack">
+      <section class="nx-panel" aria-labelledby="contacts-heading">
+        <h2 id="contacts-heading">Contacts</h2>
+        @if (contacts.hasValue()) {
+          @for (p of contacts.value(); track p.id) {
+            <div class="contact">
+              <p class="contact-name">
+                {{ p.full_name }}
+                @if (p.is_primary) {
+                  <span class="nx-muted">· Primary</span>
+                }
+              </p>
+              <p class="nx-muted">{{ p.job_title }}</p>
+              @if (p.email) {
+                <a [href]="'mailto:' + p.email"
+                  ><nx-icon name="mail" [size]="14" /> {{ p.email }}</a
+                >
+              }
+              @if (p.phone) {
+                <a [href]="'tel:' + p.phone"><nx-icon name="phone" [size]="14" /> {{ p.phone }}</a>
+              }
+            </div>
+          } @empty {
+            <p class="nx-muted">No contacts on file.</p>
+          }
+        } @else {
+          <nx-skeleton height="48px" />
+        }
+      </section>
+
+      <section class="nx-panel" aria-labelledby="billing-heading">
+        <h2 id="billing-heading">Billing</h2>
+        <dl class="nx-dl">
+          <dt>Billing email</dt>
+          <dd>{{ c.billing_email ?? '–' }}</dd>
+          <dt>Address</dt>
+          <dd>
+            @if (c.billing_address_line1) {
+              {{ c.billing_address_line1 }}<br />{{ c.billing_city }}, {{ c.billing_state }}
+              {{ c.billing_postal_code }}
+            } @else {
+              –
+            }
+          </dd>
+          <dt>Payment terms</dt>
+          <dd>{{ c.payment_terms }}</dd>
+          <dt>Customer since</dt>
+          <dd>{{ c.created_at | date: 'mediumDate' }}</dd>
+        </dl>
+        @if (c.notes) {
+          <p class="notes">{{ c.notes }}</p>
+        }
+      </section>
+    </aside>
+  </div>
+} @else {
+  <nx-skeleton width="320px" height="28px" />
+  <div class="nx-kpis loading-kpis">
+    @for (i of [1, 2, 3, 4, 5]; track i) {
+      <nx-skeleton height="72px" />
+    }
+  </div>
+  <nx-skeleton height="240px" />
+}
+
+<style>
+  .section-title {
+    font-size: var(--text-md);
+  }
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .offline {
+    color: var(--status-danger-fg);
+  }
+  .contact {
+    display: grid;
+    gap: 2px;
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--color-border);
+  }
+  .contact:first-of-type {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .contact a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-sm);
+  }
+  .contact-name {
+    font-weight: var(--weight-medium);
+  }
+  .notes {
+    margin-top: var(--space-3);
+    color: var(--color-text-secondary);
+  }
+  .loading-kpis {
+    margin-top: var(--space-5);
+  }
+</style>

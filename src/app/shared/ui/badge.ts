@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { booleanAttribute, Component, input } from '@angular/core';
 
 export type BadgeTone = 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'accent';
 
@@ -74,5 +74,5 @@ export type BadgeTone = 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 
 })
 export class Badge {
   readonly tone = input<BadgeTone>('neutral');
-  readonly dot = input(false);
+  readonly dot = input(false, { transform: booleanAttribute });
 }

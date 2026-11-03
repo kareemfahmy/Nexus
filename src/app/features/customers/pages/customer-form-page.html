@@ -1,0 +1,95 @@
+<nx-page-header
+  [title]="isEdit ? 'Edit customer' : 'New customer'"
+  subtitle="Fields marked * are required."
+/>
+
+@if (loading()) {
+  <nx-skeleton height="320px" />
+} @else {
+  <form class="nx-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage()) {
+      <div class="nx-alert" role="alert">
+        <nx-icon name="alert" /> <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <fieldset class="nx-fieldset" formGroupName="account">
+      <legend>Account</legend>
+      <nx-form-field class="span-2" label="Customer name" required>
+        <input nxControl formControlName="name" autocomplete="organization" />
+      </nx-form-field>
+      <nx-form-field
+        label="Account number"
+        required
+        hint="Format ACC-12345"
+        [messages]="{ pattern: 'Use the format ACC- followed by 4 to 8 digits, e.g. ACC-10274.' }"
+      >
+        <input nxControl formControlName="account_number" class="nx-mono" />
+      </nx-form-field>
+      <nx-form-field label="Status" required>
+        <select nxControl formControlName="status">
+          @for (s of statuses; track s) {
+            <option [value]="s">{{ s | titlecase }}</option>
+          }
+        </select>
+      </nx-form-field>
+      <nx-form-field class="span-2" label="Industry" hint="e.g. Restaurant, Grocery, Healthcare">
+        <input nxControl formControlName="industry" />
+      </nx-form-field>
+    </fieldset>
+
+    <fieldset class="nx-fieldset" formGroupName="billing">
+      <legend>Billing</legend>
+      <nx-form-field class="span-2" label="Billing email">
+        <input nxControl formControlName="billing_email" type="email" autocomplete="email" />
+      </nx-form-field>
+      <nx-form-field class="span-2" label="Street address">
+        <input nxControl formControlName="billing_address_line1" autocomplete="address-line1" />
+      </nx-form-field>
+      <nx-form-field label="City">
+        <input nxControl formControlName="billing_city" autocomplete="address-level2" />
+      </nx-form-field>
+      <nx-form-field
+        label="State"
+        hint="Two-letter code, e.g. TX"
+        [messages]="{ pattern: 'Use the two-letter state code in capitals, e.g. TX.' }"
+      >
+        <input
+          nxControl
+          formControlName="billing_state"
+          maxlength="2"
+          autocomplete="address-level1"
+        />
+      </nx-form-field>
+      <nx-form-field
+        label="Postal code"
+        [messages]="{ pattern: 'Use a 5-digit ZIP code, e.g. 78701.' }"
+      >
+        <input
+          nxControl
+          formControlName="billing_postal_code"
+          inputmode="numeric"
+          autocomplete="postal-code"
+        />
+      </nx-form-field>
+      <nx-form-field label="Payment terms" required>
+        <select nxControl formControlName="payment_terms">
+          @for (t of terms; track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
+      </nx-form-field>
+    </fieldset>
+
+    <nx-form-field label="Notes">
+      <textarea nxControl formControlName="notes"></textarea>
+    </nx-form-field>
+
+    <div class="nx-form-actions">
+      <a nxButton [routerLink]="isEdit ? ['/customers', id()] : ['/customers']">Cancel</a>
+      <button nxButton type="submit" variant="primary" [loading]="saving()">
+        {{ isEdit ? 'Save changes' : 'Create customer' }}
+      </button>
+    </div>
+  </form>
+}
