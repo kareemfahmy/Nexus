@@ -1,1 +1,112 @@
-/* You can add global styles to this file, and also import other style files */
+// Global styles: token layers, reset, base typography. Component styles live next to components.
+@use 'primitives';
+@use 'semantic';
+@use 'components';
+@use 'mixins' as mx;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  line-height: var(--leading-tight);
+  font-weight: var(--weight-semibold);
+}
+
+h1 {
+  font-size: var(--text-xl);
+}
+h2 {
+  font-size: var(--text-lg);
+}
+h3 {
+  font-size: var(--text-md);
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  @include mx.focus-ring;
+}
+
+code,
+.nx-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.nx-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.nx-visually-hidden {
+  @include mx.visually-hidden;
+}
+
+// Inputs: 16px under 768px so iOS doesn't zoom on focus
+@include mx.down(mx.$bp-md) {
+  input,
+  select,
+  textarea {
+    font-size: var(--text-md);
+  }
+}
+
+// CDK dialog backdrop (dialogs themselves are styled by their components)
+.nx-dialog-backdrop {
+  background: var(--color-scrim);
+}
+
+// Respect reduced motion for router view transitions
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

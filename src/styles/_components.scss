@@ -1,0 +1,60 @@
+// Layer 3: COMPONENT TOKENS
+// Component-specific knobs built from semantic tokens. Change density here, not in components.
+
+:root {
+  // Layout
+  --sidebar-width: 232px;
+  --sidebar-width-collapsed: 64px;
+  --topbar-height: 52px;
+  --content-max-readable: 720px;
+
+  // Controls
+  --control-height: 32px;
+  --control-height-sm: 28px;
+  --control-height-lg: 40px;
+  --control-radius: var(--radius-md);
+  --control-border: var(--color-border-control);
+
+  // Buttons
+  --button-primary-bg: var(--color-accent);
+  --button-primary-bg-hover: var(--color-accent-hover);
+  --button-primary-fg: var(--color-text-on-accent);
+  --button-secondary-bg: var(--color-surface);
+  --button-secondary-bg-hover: var(--color-surface-subtle);
+  --button-secondary-border: var(--color-border-strong);
+  --button-danger-bg: var(--status-danger-dot);
+  --button-danger-fg: var(--color-text-on-accent);
+
+  // Tables
+  --table-row-height: 36px;
+  --table-row-height-compact: 32px;
+  --table-header-bg: var(--color-surface-subtle);
+  --table-row-hover: var(--color-surface-subtle);
+
+  // Badges
+  --badge-height: 20px;
+
+  // Square boxes for icon buttons, avatars, logo marks
+  --box-xs: 24px; // inline dismiss buttons
+  --box-sm: 28px; // avatar, sidebar logo
+  --box-md: 32px; // icon buttons, login logo
+  --box-lg: 40px; // empty-state icon tile
+  --nav-item-height: 34px;
+
+  // Display type (login hero only)
+  --text-display: 2rem;
+
+  // Page widths
+  --auth-page-max: 1040px;
+  --auth-card-max: 480px;
+
+  // Overlays
+  --dialog-width: 480px;
+  --drawer-width: 480px;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --control-height: 40px; // touch-friendly and avoids iOS zoom (16px inputs below)
+  }
+}

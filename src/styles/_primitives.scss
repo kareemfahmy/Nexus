@@ -1,0 +1,44 @@
+// Layer 1: PRIMITIVES
+// Raw values only. Never reference these from components; use semantic tokens instead.
+// See design-system/nexus/MASTER.md for the reasoning and contrast ratios.
+
+:root {
+  // Slate (neutral)
+  --slate-0: #ffffff;
+  --slate-25: #f6f7f9;
+  --slate-50: #f1f3f6;
+  --slate-75: #f1f5f9;
+  --slate-100: #e3e7ed;
+  --slate-200: #cbd2dc;
+  --slate-300: #94a3b8;
+  --slate-400: #8c96a6;
+  --slate-500: #5b6678;
+  --slate-600: #475569;
+  --slate-900: #0f172a;
+
+  // Indigo (brand accent)
+  --indigo-50: #eef2ff;
+  --indigo-500: #3b5bdb;
+  --indigo-600: #2f4ac0;
+
+  // Status hues
+  --green-50: #ecfdf3;
+  --green-500: #16a34a;
+  --green-700: #15803d;
+  --amber-50: #fff7e6;
+  --amber-400: #f59e0b;
+  --amber-700: #b45309;
+  --red-50: #fef2f2;
+  --red-500: #dc2626;
+  --red-700: #b91c1c;
+  --blue-50: #eff6ff;
+  --blue-400: #3b82f6;
+  --blue-700: #1d4ed8;
+
+  // Overlay
+  --scrim: rgb(15 23 42 / 0.45);
+
+  // Type families
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
