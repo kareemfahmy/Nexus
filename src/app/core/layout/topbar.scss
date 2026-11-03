@@ -1,0 +1,95 @@
+@use 'mixins' as mx;
+
+:host {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: var(--topbar-height);
+  padding: 0 var(--space-6);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+
+  @include mx.down(mx.$bp-md) {
+    padding: 0 var(--space-3);
+  }
+}
+
+.crumbs {
+  flex: 1;
+  min-width: 0;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: var(--box-md);
+  height: var(--box-md);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+
+  &:hover {
+    background: var(--color-surface-subtle);
+    color: var(--color-text);
+  }
+}
+
+.menu {
+  @include mx.up(mx.$bp-lg) {
+    display: none;
+  }
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: var(--box-sm);
+  height: var(--box-sm);
+  border-radius: 50%;
+  background: var(--color-accent-subtle);
+  color: var(--color-accent-hover);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.user-text {
+  display: flex;
+  flex-direction: column;
+  line-height: var(--leading-tight);
+
+  @include mx.down(mx.$bp-md) {
+    display: none;
+  }
+}
+
+.name {
+  font-weight: var(--weight-medium);
+}
+
+.role {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.demo-badge {
+  @include mx.down(mx.$bp-sm + 100px) {
+    display: none;
+  }
+}

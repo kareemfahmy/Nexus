@@ -1,12 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
+/** Root component: just the router outlet. Layout lives in core/layout/app-shell. */
 @Component({
-  imports: [RouterOutlet],
   selector: 'nx-root',
-  styleUrl: './app.scss',
-  templateUrl: './app.html',
+  imports: [RouterOutlet],
+  template: '<router-outlet />',
 })
-export class App {
-  protected readonly title = signal('nexus');
-}
+export class App {}
