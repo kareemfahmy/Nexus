@@ -83,3 +83,29 @@ node .claude/skills/design-system/scripts/validate-tokens.cjs --dir src/app
 ```
 
 Also take Playwright screenshots at 375 / 768 / 1440 and check for horizontal scroll and keyboard order.
+
+## 7. Data model (Milestone 2b)
+
+```
+customers 1──* sites 1──* equipment 1──* devices (equipment_id nullable: gateways/meters are site-level)
+                 │            │              └──* telemetry (device_id, recorded_at, metric, value)
+                 │            ├──* equipment_notes ──> team_members (author)
+                 │            └──* equipment_audit_logs (trigger-written)
+                 ├──* contacts (also customer-level, site_id nullable)
+                 ├──* work_orders ──> equipment?, vendors?, team_members (assigned_to, created_by)
+                 └──* incidents   ──> equipment?, devices?, team_members
+                                     ├──* incident_comments ──> team_members (author)
+                                     └──* incident_events (trigger-written timeline)
+auth.users 1──1 profiles (role)      auth.users 1──0..1 team_members (directory of assignable people)
+```
+
+| Decision | Why |
+|---|---|
+| UUID primary keys, plus human-readable `WO-100001` / `INC-5001` from identity columns | UUIDs are safe to expose in URLs. Generated `display_id` columns give operators something they can say on a phone call. |
+| Postgres enums for every status | One source of truth. The generated TS types turn them into string unions, so a typo is a compile error. |
+| Customer reached only through `site_id` | No duplicated `customer_id` on child tables that could drift out of sync. |
+| `team_members` separate from `auth.users` | Seeded technicians don't need logins, and real users are linked by the signup trigger. |
+| Narrow telemetry table (`metric`, `value`) | Any device type fits without schema changes, and a future AWS IoT/InControl ingest just inserts rows. |
+| `jsonb specs` on equipment | Category-specific fields (tonnage, CFM, setpoint) without a table per category. |
+| Read-model views with `security_invoker` | Dashboard and site summaries are computed in SQL from real rows while RLS still applies. |
+| Business rules in triggers | Status workflows and audit history can't be bypassed by calling the API directly. See [rls.md](rls.md). |

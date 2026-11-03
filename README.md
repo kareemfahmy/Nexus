@@ -4,7 +4,7 @@
 
 > Portfolio project built with **Angular 22 + Supabase (PostgreSQL)**. All data is fictional and all telemetry is simulated.
 
-**Status:** Milestone 2a (foundation) complete. See [roadmap](#roadmap).
+**Status:** Milestone 2b (database) complete. See [roadmap](#roadmap).
 
 ---
 
@@ -55,7 +55,36 @@ The publishable key is **public by design**. Data is protected by Row Level Secu
 
 1. Create a Supabase project and copy its URL and publishable key into the environment files.
 2. Enable **Authentication → Sign In / Providers → Anonymous sign-ins** so the read-only guest demo works. Turning on CAPTCHA or rate limiting is recommended.
-3. Apply database migrations and seed data. *Arrives in Milestone 2b (`supabase/migrations`, `supabase/seed.sql`).*
+3. Apply the migrations in order. Paste each file from `supabase/migrations/` into the SQL editor, or run:
+   ```bash
+   for f in supabase/migrations/*.sql; do psql "$DATABASE_URL" -1 -f "$f"; done
+   ```
+   `DATABASE_URL` is the connection string from Project Settings → Database. It stays on your machine and never goes in the app.
+4. Load the demo data. This is repeatable: it wipes and regenerates demo rows, but keeps real users:
+   ```bash
+   psql "$DATABASE_URL" -f supabase/seed.sql
+   ```
+5. Verify the security rules. The expected output is `RLS_TESTS_PASSED: 25 checks`:
+   ```bash
+   psql "$DATABASE_URL" -f supabase/tests/rls_and_rules.test.sql
+   ```
+6. Regenerate TypeScript types after any schema change, and overwrite `src/app/core/supabase/database.types.ts` with the output:
+   ```bash
+   npx supabase gen types typescript --project-id <project-ref>
+   ```
+7. To write data, create a user under Authentication → Users and promote them. See [docs/rls.md](docs/rls.md#promoting-a-user).
+
+### Demo dataset
+
+| Entity | Rows |
+|---|---|
+| Customers / sites / contacts | 20 / 56 / 96 |
+| Equipment / IoT devices | 284 / 287 |
+| Telemetry readings (hourly, 14 days) | ~135,000 |
+| Work orders / incidents | 134 / 62 |
+| Incident comments / timeline events | ~120 / 217 |
+
+All names, addresses and identifiers are fictional. Timestamps are relative to when the seed runs, so the demo always looks current.
 
 ## Project structure
 
@@ -66,7 +95,8 @@ src/app/
   features/    one folder per module, lazy-loaded (customers, sites, equipment, devices…)
 src/styles/    design tokens: primitives → semantic → component
 design-system/ design rules (MASTER.md) produced with the ui-ux-pro-max skill
-docs/          architecture, decisions (ADRs), approved plan
+supabase/      migrations (source of truth), seed.sql, RLS tests
+docs/          architecture, security model (rls.md), decisions (ADRs), approved plan
 ```
 
 More detail is in [docs/architecture.md](docs/architecture.md).
@@ -77,7 +107,7 @@ More detail is in [docs/architecture.md](docs/architecture.md).
 |---|---|---|
 | 1 | Product architecture and planning | ✅ |
 | 2a | Foundation: shell, routing, design system, auth | ✅ |
-| 2b | Database: schema, RLS, seed data, generated types | ⏳ |
+| 2b | Database: schema, RLS, seed data, generated types | ✅ |
 | 3 | Customers and Sites | |
 | 4 | Equipment | |
 | 5 | IoT Devices | |

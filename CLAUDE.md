@@ -20,7 +20,11 @@ The full approved plan is in `docs/architecture-plan.md`. Read it before startin
 ## Supabase
 - The cloud sandbox network policy blocks *.supabase.co, so browser sign-in can't be tested from the container (MCP tools still work). The user tests auth in their own browser.
 - Hosted project "Nexus": ref `csblzgxsskyfpgsevlgd`, eu-central-1, Postgres 17.
-- Migrations in `supabase/migrations/` are the source of truth. They're applied via the Supabase MCP `apply_migration`.
+- Migrations in `supabase/migrations/` are the source of truth. They're applied via the Supabase MCP `apply_migration` (6 applied: 0001-0006).
+- Dry-run new SQL on a local Postgres 16 first (`/usr/lib/postgresql/16/bin`, run as the `postgres` user) with an `auth` schema stub, then apply to the hosted project.
+- After schema changes, run `supabase/tests/rls_and_rules.test.sql` (expected: `RLS_TESTS_PASSED`) and `get_advisors`. The accepted findings are listed in docs/rls.md.
+- People model: assignees and authors reference `team_members` (not auth users). Real users get a linked team_members row on signup. Roles live in `profiles.role` and are promoted only via SQL.
+- Seed: `supabase/seed.sql` is deterministic (md5-hash helpers keyed on stable natural keys, never UUIDs) and time-relative.
 - Regenerate `src/app/core/supabase/database.types.ts` after every migration.
 - Only the publishable key goes in frontend env files. Never put the service-role key there.
 
@@ -38,7 +42,7 @@ The full approved plan is in `docs/architecture-plan.md`. Read it before startin
 ## Status
 - [x] M1 Planning (approved)
 - [x] M2a Foundation (shell, routing, tokens, shared UI v1, auth + guards, docs)
-- [ ] M2b Database
+- [x] M2b Database (6 migrations, RLS 25/25 tests, deterministic seed, generated types)
 - [ ] M3–M10 (see plan)
 
 ---
