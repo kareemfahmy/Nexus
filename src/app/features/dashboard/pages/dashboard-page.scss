@@ -1,0 +1,95 @@
+@use 'mixins' as mx;
+
+.section-title {
+  margin: var(--space-2) 0 var(--space-3);
+  font-size: var(--text-md);
+}
+
+.attention,
+.trends {
+  display: grid;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.attention {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  @include mx.down(mx.$bp-xl) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @include mx.down(mx.$bp-lg) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.trends {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  @include mx.down(mx.$bp-lg) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+h3 {
+  margin-bottom: var(--space-3);
+  font-size: var(--text-base);
+}
+
+ul {
+  display: grid;
+  // minmax(0, 1fr): let items shrink below their content so long nowrap titles truncate
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+li {
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--color-border);
+
+  &:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--weight-medium);
+}
+
+.sub {
+  margin-top: 2px;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.pri {
+  color: var(--status-danger-fg);
+  font-weight: var(--weight-medium);
+  text-transform: capitalize;
+}
+
+.more {
+  display: inline-block;
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.summary {
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}

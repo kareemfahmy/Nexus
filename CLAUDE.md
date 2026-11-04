@@ -20,8 +20,8 @@ The full approved plan is in `docs/architecture-plan.md`. Read it before startin
 ## Supabase
 - The cloud sandbox network policy blocks *.supabase.co, so browser sign-in can't be tested from the container (MCP tools still work). The user tests auth in their own browser.
 - Hosted project "Nexus": ref `csblzgxsskyfpgsevlgd`, eu-central-1, Postgres 17.
-- Migrations in `supabase/migrations/` are the source of truth. They're applied via the Supabase MCP `apply_migration` (7 applied: 0001-0007).
-- `database.types.ts` was hand-patched for 0007 (telemetry_series + optional author_id) to match generator output. Regenerate fully when convenient.
+- Migrations in `supabase/migrations/` are the source of truth. They're applied via the Supabase MCP `apply_migration` (8 applied: 0001-0008).
+- `database.types.ts` was hand-patched for 0007-0008 (telemetry_series, ops_weekly_trend, optional author_id) to match generator output. Regenerate fully when convenient.
 - Dry-run new SQL on a local Postgres 16 first (`/usr/lib/postgresql/16/bin`, run as the `postgres` user) with an `auth` schema stub, then apply to the hosted project.
 - After schema changes, run `supabase/tests/rls_and_rules.test.sql` (expected: `RLS_TESTS_PASSED`) and `get_advisors`. The accepted findings are listed in docs/rls.md.
 - People model: assignees and authors reference `team_members` (not auth users). Real users get a linked team_members row on signup. Roles live in `profiles.role` and are promoted only via SQL.
@@ -60,7 +60,7 @@ The full approved plan is in `docs/architecture-plan.md`. Read it before startin
 - [x] M3 Customers and Sites (data table, forms, site workspace with route-scoped store)
 - [x] M4 Assets: grouped equipment overview, equipment detail + activity timeline + notes, device inventory + detail, telemetry chart (telemetry_series RPC) + thermostat card
 - [ ] M5 Operations: work orders (full CRUD) + incidents (list, detail, timeline, comments, status)
-- [ ] M6 Dashboard (no separate analytics page)
+- [x] M6 Dashboard: KPIs (v_dashboard_kpis), attention lists, weekly throughput charts (ops_weekly_trend RPC, migration 0008). Analytics nav and route removed.
 - [ ] M7 Deploy + README (live URL is the priority)
 
 TRIMMED ROADMAP (approved 2026-11-03, token budget): original M4-M10 merged into M4-M7 above.

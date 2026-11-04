@@ -4,7 +4,7 @@
 
 > Portfolio project built with **Angular 22 + Supabase (PostgreSQL)**. All data is fictional and all telemetry is simulated.
 
-**Status:** Milestone 4 (assets) complete. See [roadmap](#roadmap).
+**Status:** Milestone 6 (dashboard) complete. Milestone 5 (work orders and incidents) is next after deployment. See [roadmap](#roadmap).
 
 ---
 
@@ -111,7 +111,7 @@ More detail is in [docs/architecture.md](docs/architecture.md).
 | 3 | Customers and Sites | ✅ |
 | 4 | Assets: equipment, devices, telemetry | ✅ |
 | 5 | Operations: work orders and incidents | |
-| 6 | Dashboard | |
+| 6 | Dashboard | ✅ |
 | 7 | Deploy and polish | |
 
 The full plan is in [docs/architecture-plan.md](docs/architecture-plan.md).

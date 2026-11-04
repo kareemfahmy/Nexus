@@ -916,6 +916,16 @@ export type Database = {
       current_member_id: { Args: never; Returns: string }
       is_admin: { Args: never; Returns: boolean }
       is_seeding: { Args: never; Returns: boolean }
+      ops_weekly_trend: {
+        Args: { p_weeks?: number }
+        Returns: {
+          incidents_opened: number
+          incidents_resolved: number
+          week: string
+          wo_completed: number
+          wo_created: number
+        }[]
+      }
       telemetry_series: {
         Args: { p_bucket: unknown; p_device_id: string; p_since: string }
         Returns: {

@@ -1,0 +1,162 @@
+<nx-page-header
+  [title]="greeting()"
+  subtitle="What needs attention across every site, right now."
+/>
+
+<section class="nx-kpis" aria-label="Platform overview">
+  @if (k(); as k) {
+    <nx-kpi-stat
+      label="Active customers"
+      [value]="k.customers"
+      [hint]="k.sites + ' operating sites'"
+    />
+    <nx-kpi-stat label="Equipment" [value]="k.equipment" hint="At operating sites" />
+    <nx-kpi-stat
+      label="Devices online"
+      [value]="onlinePct() !== null ? onlinePct() + '%' : null"
+      [hint]="k.devices_online + ' of ' + k.devices"
+      [tone]="(onlinePct() ?? 100) < 90 ? 'warning' : 'success'"
+    />
+    <nx-kpi-stat
+      label="Offline / warning"
+      [value]="(k.devices_offline ?? 0) + ' / ' + (k.devices_warning ?? 0)"
+      [tone]="k.devices_offline ? 'danger' : 'neutral'"
+    />
+    <nx-kpi-stat
+      label="Active work orders"
+      [value]="k.active_work_orders"
+      [hint]="k.overdue_work_orders ? k.overdue_work_orders + ' overdue' : 'None overdue'"
+      [tone]="k.overdue_work_orders ? 'warning' : 'neutral'"
+    />
+    <nx-kpi-stat
+      label="Open incidents"
+      [value]="k.open_incidents"
+      [hint]="k.critical_incidents ? k.critical_incidents + ' Sev 1–2' : 'No critical incidents'"
+      [tone]="k.critical_incidents ? 'danger' : 'neutral'"
+    />
+  } @else {
+    @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+      <nx-skeleton height="76px" />
+    }
+  }
+</section>
+
+<h2 class="section-title">Needs attention</h2>
+<div class="attention">
+  <section class="nx-panel" aria-labelledby="att-devices">
+    <h3 id="att-devices">Devices not reporting</h3>
+    @if (devices.hasValue()) {
+      <ul role="list">
+        @for (d of devices.value(); track d.id) {
+          <li>
+            <div class="line">
+              <a [routerLink]="['/devices', d.id]">{{ typeLabel[d.device_type] }}</a>
+              <nx-status-badge [status]="d.connectivity_status" />
+            </div>
+            <p class="sub">
+              <a class="nx-mono" [routerLink]="['/sites', d.site.id]">{{ d.site.code }}</a>
+              · silent
+              <time [attr.datetime]="d.last_seen_at">{{
+                d.last_seen_at | relativeTime: 'never seen'
+              }}</time>
+            </p>
+          </li>
+        } @empty {
+          <li class="nx-muted">Every device at operating sites is reporting.</li>
+        }
+      </ul>
+      <a class="more" routerLink="/devices" [queryParams]="{ connectivity: 'offline' }"
+        >All offline devices</a
+      >
+    } @else {
+      <nx-skeleton height="180px" />
+    }
+  </section>
+
+  <section class="nx-panel" aria-labelledby="att-wo">
+    <h3 id="att-wo">Overdue work orders</h3>
+    @if (overdue.hasValue()) {
+      <ul role="list">
+        @for (w of overdue.value(); track w.id) {
+          <li>
+            <div class="line">
+              <span class="title">{{ w.title }}</span>
+              <nx-status-badge [status]="w.status" [showIcon]="false" />
+            </div>
+            <p class="sub">
+              <span class="nx-mono">{{ w.display_id }}</span>
+              @if (w.site) {
+                · <a class="nx-mono" [routerLink]="['/sites', w.site.id]">{{ w.site.code }}</a>
+              }
+              · due
+              <time [attr.datetime]="w.scheduled_for" [title]="w.scheduled_for | date: 'medium'">
+                {{ w.scheduled_for | relativeTime }}
+              </time>
+              @if (w.priority === 'urgent' || w.priority === 'high') {
+                · <strong class="pri">{{ w.priority }}</strong>
+              }
+            </p>
+          </li>
+        } @empty {
+          <li class="nx-muted">No overdue work orders.</li>
+        }
+      </ul>
+    } @else {
+      <nx-skeleton height="180px" />
+    }
+  </section>
+
+  <section class="nx-panel" aria-labelledby="att-inc">
+    <h3 id="att-inc">Critical incidents</h3>
+    @if (incidents.hasValue()) {
+      <ul role="list">
+        @for (i of incidents.value(); track i.id) {
+          <li>
+            <div class="line">
+              <span class="title">{{ i.title }}</span>
+              <nx-status-badge [status]="i.severity" />
+            </div>
+            <p class="sub">
+              <span class="nx-mono">{{ i.display_id }}</span>
+              @if (i.site) {
+                · <a class="nx-mono" [routerLink]="['/sites', i.site.id]">{{ i.site.code }}</a>
+              }
+              · opened <time [attr.datetime]="i.opened_at">{{ i.opened_at | relativeTime }}</time> ·
+              {{ i.status.replace('_', ' ') }}
+            </p>
+          </li>
+        } @empty {
+          <li class="nx-muted">No Sev 1 or Sev 2 incidents are open.</li>
+        }
+      </ul>
+    } @else {
+      <nx-skeleton height="180px" />
+    }
+  </section>
+</div>
+
+<h2 class="section-title">Are we keeping up?</h2>
+<div class="trends">
+  <section class="nx-panel" aria-labelledby="trend-wo">
+    <h3 id="trend-wo">Work orders per week</h3>
+    @if (trend.hasValue()) {
+      <p class="summary">{{ woSummary() }}</p>
+      <nx-chart [option]="woOption()" [label]="woSummary()" height="220px" />
+    } @else if (trend.error()) {
+      <p class="nx-muted">Trend data could not be loaded.</p>
+    } @else {
+      <nx-skeleton height="240px" />
+    }
+  </section>
+  <section class="nx-panel" aria-labelledby="trend-inc">
+    <h3 id="trend-inc">Incidents per week</h3>
+    @if (trend.hasValue()) {
+      <p class="summary">{{ incSummary() }}</p>
+      <nx-chart [option]="incOption()" [label]="incSummary()" height="220px" />
+    } @else if (trend.error()) {
+      <p class="nx-muted">Trend data could not be loaded.</p>
+    } @else {
+      <nx-skeleton height="240px" />
+    }
+  </section>
+</div>

@@ -18,10 +18,7 @@ export interface NavGroup {
 export const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Overview',
-    items: [
-      { label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
-      { label: 'Analytics', path: '/analytics', icon: 'analytics' },
-    ],
+    items: [{ label: 'Dashboard', path: '/dashboard', icon: 'dashboard' }],
   },
   {
     label: 'Accounts',

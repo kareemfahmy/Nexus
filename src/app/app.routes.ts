@@ -56,11 +56,6 @@ export const routes: Routes = [
         loadChildren: () => import('./features/incidents/incidents.routes'),
       },
       {
-        path: 'analytics',
-        data: { breadcrumb: 'Analytics' },
-        loadChildren: () => import('./features/analytics/analytics.routes'),
-      },
-      {
         path: 'forbidden',
         title: 'Read-only access · Nexus',
         data: { breadcrumb: 'Read-only' },
