@@ -61,7 +61,8 @@ The full approved plan is in `docs/architecture-plan.md`. Read it before startin
 - [x] M4 Assets: grouped equipment overview, equipment detail + activity timeline + notes, device inventory + detail, telemetry chart (telemetry_series RPC) + thermostat card
 - [ ] M5 Operations: work orders (full CRUD) + incidents (list, detail, timeline, comments, status)
 - [x] M6 Dashboard: KPIs (v_dashboard_kpis), attention lists, weekly throughput charts (ops_weekly_trend RPC, migration 0008). Analytics nav and route removed.
-- [ ] M7 Deploy + README (live URL is the priority)
+- [x] M7 Deploy: GitHub Actions `.github/workflows/ci-deploy.yml` (tests, token check, build, Pages deploy from default branch). Live: https://kareemfahmy.github.io/Nexus/ . Requires Settings > Pages > Source: GitHub Actions.
+- Repo is PUBLIC and its default branch is `claude/gifted-mendel-gxx7m8`.
 
 TRIMMED ROADMAP (approved 2026-11-03, token budget): original M4-M10 merged into M4-M7 above.
 Cut: analytics page, command palette, banner/slides, telemetry simulator cron, global search.

@@ -4,6 +4,10 @@
 
 > Portfolio project built with **Angular 22 + Supabase (PostgreSQL)**. All data is fictional and all telemetry is simulated.
 
+**Live demo:** https://kareemfahmy.github.io/Nexus/ (click **Explore the demo** for read-only guest access)
+
+[![CI and deploy](https://github.com/kareemfahmy/Nexus/actions/workflows/ci-deploy.yml/badge.svg)](https://github.com/kareemfahmy/Nexus/actions/workflows/ci-deploy.yml)
+
 **Status:** Milestone 6 (dashboard) complete. Milestone 5 (work orders and incidents) is next after deployment. See [roadmap](#roadmap).
 
 ---
@@ -86,6 +90,21 @@ The publishable key is **public by design**. Data is protected by Row Level Secu
 
 All names, addresses and identifiers are fictional. Timestamps are relative to when the seed runs, so the demo always looks current.
 
+## Deployment
+
+`.github/workflows/ci-deploy.yml` runs on every push and pull request:
+
+1. `npm ci`
+2. unit tests (Vitest)
+3. the design-token check
+4. a production build with `--base-href /<repo>/`
+
+Pushes to the default branch then deploy `dist/nexus/browser` to **GitHub Pages**. GitHub Pages has no URL rewrites, so the workflow copies `index.html` to `404.html`. That way deep links such as `/Nexus/sites/<id>` still load the Angular router.
+
+One-time setup: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+
+The Supabase URL and publishable key are compiled into the bundle. That's expected: access is enforced by Row Level Security (see [docs/rls.md](docs/rls.md)).
+
 ## Project structure
 
 ```
@@ -112,6 +131,6 @@ More detail is in [docs/architecture.md](docs/architecture.md).
 | 4 | Assets: equipment, devices, telemetry | ✅ |
 | 5 | Operations: work orders and incidents | |
 | 6 | Dashboard | ✅ |
-| 7 | Deploy and polish | |
+| 7 | Deploy (GitHub Pages + CI) | ✅ |
 
 The full plan is in [docs/architecture-plan.md](docs/architecture-plan.md).
